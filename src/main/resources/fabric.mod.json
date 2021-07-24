@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "customlan",
+  "version": "${version}",
+
+  "name": "Custom LAN",
+  "description": "Gives you more control over your integrated server through the Open to LAN menu.",
+  "authors": ["DimiDimit"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/custom-lan",
+    "sources": "https://github.com/DimiDimit/Custom-LAN",
+    "issues": "https://github.com/DimiDimit/Custom-LAN/issues"
+  },
+
+  "license": "MIT",
+  "icon": "assets/customlan/icon.png",
+
+  "environment": "client",
+  "mixins": ["customlan.mixins.json"],
+
+  "depends": {
+    "fabric-resource-loader-v0": "*",
+    "fabricloader": ">=0.11.3",
+    "minecraft": ["1.17", "1.17.1"]
+  }
+}
