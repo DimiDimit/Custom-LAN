@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -29,6 +29,9 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private static final Text PORT_TEXT = new TranslatableText("lanServer.port");
     private static final Text MOTD_TEXT = new TranslatableText("lanServer.motd");
 
+    private ButtonWidget onlineModeButton;
+    private ButtonWidget pvpEnabledButton;
+    private TextFieldWidget portField;
     private TextFieldWidget motdField;
 
     private boolean onlineMode = true;
@@ -45,25 +48,34 @@ public abstract class OpenToLanScreenMixin extends Screen {
         throw new AssertionError();
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
+    @Shadow
+    private void updateButtonText() {
+        throw new AssertionError();
+    }
+
+    // Custom buttons must be created before the call to updateButtonText
+    // at the end of the Vanilla method. Hence, @At("HEAD").
+    @Inject(method = "init", at = @At("HEAD"))
     private void addCustomWidgets(CallbackInfo ci) {
         // Online Mode button
-        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(onlineMode).build(this.width / 2 - 155, 124, 150, 20,
-                ONLINE_MODE_TEXT, (button, onlineMode) -> {
-                    this.onlineMode = onlineMode;
+        this.onlineModeButton = this
+                .addButton(new ButtonWidget(this.width / 2 - 155, 124, 150, 20, ONLINE_MODE_TEXT, (button) -> {
+                    this.onlineMode = !this.onlineMode;
+                    this.updateButtonText();
                 }));
         // PvP Enabled button
-        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(pvpEnabled).build(this.width / 2 + 5, 124, 150, 20,
-                PVP_ENABLED_TEXT, (button, pvpEnabled) -> {
-                    this.pvpEnabled = pvpEnabled;
+        this.pvpEnabledButton = this
+                .addButton(new ButtonWidget(this.width / 2 + 5, 124, 150, 20, PVP_ENABLED_TEXT, (button) -> {
+                    this.pvpEnabled = !this.pvpEnabled;
+                    this.updateButtonText();
                 }));
 
         // Port field
-        ButtonWidget startButton = (ButtonWidget) this.children().get(2);
-        TextFieldWidget portField = new TextFieldWidget(this.textRenderer, this.width / 2 - 154, this.height - 54, 148,
-                20, PORT_TEXT);
+        this.portField = new TextFieldWidget(this.textRenderer, this.width / 2 - 154, this.height - 54, 148, 20,
+                PORT_TEXT);
         portField.setText(Integer.toString(port));
         portField.setChangedListener((port) -> {
+            ButtonWidget startButton = (ButtonWidget) this.children().get(4);
             Integer newPort = null;
             try {
                 newPort = Integer.parseInt(port);
@@ -81,22 +93,31 @@ public abstract class OpenToLanScreenMixin extends Screen {
                 startButton.active = false;
             }
         });
-        this.addDrawableChild(portField);
+        this.addChild(portField);
 
         // MOTD field
         IntegratedServer server = this.client.getServer();
         this.motdField = new TextFieldWidget(this.textRenderer, this.width / 2 + 6, this.height - 54, 148, 20,
                 MOTD_TEXT);
         motdField.setText(server.getServerMotd());
-        this.addDrawableChild(motdField);
+        this.addChild(motdField);
+    }
+
+    @Inject(method = "updateButtonText", at = @At("TAIL"))
+    private void updateCustomButtonText(CallbackInfo ci) {
+        this.onlineModeButton.setMessage(ScreenTexts.composeToggleText(ONLINE_MODE_TEXT, this.onlineMode));
+        this.pvpEnabledButton.setMessage(ScreenTexts.composeToggleText(PVP_ENABLED_TEXT, this.pvpEnabled));
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void renderCustom(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         // Port field text
         drawTextWithShadow(matrices, this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 66, 10526880);
         // MOTD field text
         drawTextWithShadow(matrices, this.textRenderer, MOTD_TEXT, this.width / 2 + 6, this.height - 66, 10526880);
+
+        this.portField.render(matrices, mouseX, mouseY, delta);
+        this.motdField.render(matrices, mouseX, mouseY, delta);
     }
 
     @Inject(method = "method_19851", at = @At("HEAD"))
@@ -130,7 +151,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         } else {
             if (this.portValid) {
                 // Open to LAN
-                this.method_19851((ButtonWidget) this.children().get(2));
+                this.method_19851((ButtonWidget) this.children().get(4));
             }
             return true;
         }
