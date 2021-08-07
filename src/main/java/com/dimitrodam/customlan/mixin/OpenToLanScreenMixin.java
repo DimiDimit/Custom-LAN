@@ -105,8 +105,10 @@ public abstract class OpenToLanScreenMixin extends Screen {
 
     @Inject(method = "updateButtonText", at = @At("TAIL"))
     private void updateCustomButtonText(CallbackInfo ci) {
-        this.onlineModeButton.setMessage(ScreenTexts.composeToggleText(ONLINE_MODE_TEXT, this.onlineMode));
-        this.pvpEnabledButton.setMessage(ScreenTexts.composeToggleText(PVP_ENABLED_TEXT, this.pvpEnabled));
+        this.onlineModeButton
+                .setMessage(ONLINE_MODE_TEXT.copy().append(" ").append(ScreenTexts.getToggleText(this.onlineMode)));
+        this.pvpEnabledButton
+                .setMessage(PVP_ENABLED_TEXT.copy().append(" ").append(ScreenTexts.getToggleText(this.pvpEnabled)));
     }
 
     @Inject(method = "render", at = @At("TAIL"))
