@@ -7,6 +7,8 @@ A **Fabric** mod that allows you to customize the following of your integrated s
 * MOTD
 * Anything else you might want, just send me a feature request!
 
+It also allows you to start the LAN world by pressing Enter.
+
 It **only** requires [Fabric Loader](https://fabricmc.net/use/)—[Fabric API](https://modrinth.com/mod/fabric-api) is not required.
 
 It has been backported to all Minecraft versions supported by Fabric (except the snapshots)!
