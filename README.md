@@ -1,5 +1,5 @@
 # Custom LAN
-![Screenshot of Custom LAN](https://dimitrodam.com/misc/custom-lan-screenshot.png)
+![Screenshot of Custom LAN](docs/open_to_lan_screen.png)
 A **Fabric** mod that allows you to customize the following of your integrated server:
 * Online Mode
 * PvP
