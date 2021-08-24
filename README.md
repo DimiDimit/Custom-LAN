@@ -9,7 +9,7 @@ A **Fabric** mod that allows you to customize the following of your integrated s
 
 It also allows you to start the LAN world by pressing Enter, and extends the `/publish` command:
 ```
-/publish [<port>] [<cheatsAllowed>] [<onlineMode>] [<pvpEnabled>] [<motd>]
+/publish [<port>] [<cheatsAllowed>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<motd>]
 ```
 
 It **only** requires [Fabric Loader](https://fabricmc.net/use/)—[Fabric API](https://modrinth.com/mod/fabric-api) is not required.

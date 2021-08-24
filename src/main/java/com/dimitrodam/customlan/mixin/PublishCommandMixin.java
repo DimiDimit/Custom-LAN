@@ -3,6 +3,7 @@ package com.dimitrodam.customlan.mixin;
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.BoolArgumentType.getBool;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -37,6 +38,7 @@ public class PublishCommandMixin {
 
     private static final boolean DEFAULT_ONLINE_MODE = true;
     private static final boolean DEFAULT_PVP_ENABLED = true;
+    private static final int DEFAULT_MAX_PLAYERS = 8;
 
     @Redirect(method = "register", at = @At(value = "INVOKE", ordinal = 0, target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;then(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
     private static ArgumentBuilder<ServerCommandSource, LiteralArgumentBuilder<ServerCommandSource>> registerAdvanced(
@@ -44,23 +46,30 @@ public class PublishCommandMixin {
             ArgumentBuilder<ServerCommandSource, RequiredArgumentBuilder<ServerCommandSource, Integer>> commandWithPort) {
         return command.then(commandWithPort.then(argument("cheatsAllowed", bool())
                 .executes(context -> executeAdvanced(context.getSource(), getBool(context, "cheatsAllowed"),
-                        DEFAULT_ONLINE_MODE, DEFAULT_PVP_ENABLED, getInteger(context, "port"), null))
+                        DEFAULT_ONLINE_MODE, DEFAULT_PVP_ENABLED, getInteger(context, "port"), DEFAULT_MAX_PLAYERS,
+                        null))
                 .then(argument("onlineMode", bool())
                         .executes(context -> executeAdvanced(context.getSource(), getBool(context, "cheatsAllowed"),
-                                getBool(context, "onlineMode"), DEFAULT_PVP_ENABLED, getInteger(context, "port"), null))
-                        .then(argument("pvpEnabled", bool())
-                                .executes(context -> executeAdvanced(context.getSource(),
-                                        getBool(context, "cheatsAllowed"), getBool(context, "onlineMode"),
-                                        getBool(context, "pvpEnabled"), getInteger(context, "port"), null))
-                                .then(argument("motd", greedyString())
+                                getBool(context, "onlineMode"), DEFAULT_PVP_ENABLED, getInteger(context, "port"),
+                                DEFAULT_MAX_PLAYERS, null))
+                        .then(argument("pvpEnabled", bool()).executes(context -> executeAdvanced(context.getSource(),
+                                getBool(context, "cheatsAllowed"), getBool(context, "onlineMode"),
+                                getBool(context, "pvpEnabled"), getInteger(context, "port"), DEFAULT_MAX_PLAYERS, null))
+                                .then(argument("maxPlayers", integer(1, Integer.MAX_VALUE))
                                         .executes(context -> executeAdvanced(context.getSource(),
                                                 getBool(context, "cheatsAllowed"), getBool(context, "onlineMode"),
                                                 getBool(context, "pvpEnabled"), getInteger(context, "port"),
-                                                getString(context, "motd"))))))));
+                                                getInteger(context, "maxPlayers"), null))
+                                        .then(argument("motd", greedyString())
+                                                .executes(context -> executeAdvanced(context.getSource(),
+                                                        getBool(context, "cheatsAllowed"),
+                                                        getBool(context, "onlineMode"), getBool(context, "pvpEnabled"),
+                                                        getInteger(context, "port"), getInteger(context, "maxPlayers"),
+                                                        getString(context, "motd")))))))));
     }
 
     private static int executeAdvanced(ServerCommandSource source, boolean cheatsAllowed, boolean onlineMode,
-            boolean pvpEnabled, int port, String motd) throws CommandSyntaxException {
+            boolean pvpEnabled, int port, int maxPlayers, String motd) throws CommandSyntaxException {
         MinecraftServer server = source.getServer();
 
         if (server.isRemote()) {
@@ -69,6 +78,8 @@ public class PublishCommandMixin {
 
         server.setOnlineMode(onlineMode);
         server.setPvpEnabled(pvpEnabled);
+
+        ((PlayerManagerAccessor) server.getPlayerManager()).setMaxPlayers(maxPlayers);
 
         if (motd != null) {
             server.setMotd(motd);
