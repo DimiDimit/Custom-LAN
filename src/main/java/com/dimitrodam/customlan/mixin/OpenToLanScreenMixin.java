@@ -119,7 +119,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
     }
 
     /**
-     * Allow starting with enter as well as the Open to LAN button.
+     * Allow starting with Enter as well as the Start LAN World button.
      */
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
