@@ -2,5 +2,6 @@
   "lanServer.onlineMode": "Онлайн режим",
   "lanServer.pvpEnabled": "Играч срещу играч",
   "lanServer.port": "Мрежов порт",
+  "lanServer.maxPlayers": "Максимален брой играчи",
   "lanServer.motd": "Съобщение на деня"
 }

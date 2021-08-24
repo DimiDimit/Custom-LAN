@@ -22,20 +22,25 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private static final String FIND_LOCAL_PORT = "net/minecraft/client/util/NetworkUtils.findLocalPort()I";
 
     private static final int DEFAULT_PORT = 25565;
+    private static final int DEFAULT_MAX_PLAYERS = 8;
     private static final String ONLINE_MODE_TEXT = "lanServer.onlineMode";
     private static final String PVP_ENABLED_TEXT = "lanServer.pvpEnabled";
     private static final String PORT_TEXT = "lanServer.port";
+    private static final String MAX_PLAYERS_TEXT = "lanServer.maxPlayers";
     private static final String MOTD_TEXT = "lanServer.motd";
 
     private ButtonWidget onlineModeButton;
     private ButtonWidget pvpEnabledButton;
     private TextFieldWidget portField;
+    private TextFieldWidget maxPlayersField;
     private TextFieldWidget motdField;
 
     private boolean onlineMode = true;
     private boolean pvpEnabled = true;
     private int port = DEFAULT_PORT;
     private boolean portValid = true;
+    private int maxPlayers = DEFAULT_MAX_PLAYERS;
+    private boolean maxPlayersValid = true;
 
     protected OpenToLanScreenMixin(Text title) {
         super(title);
@@ -49,6 +54,10 @@ public abstract class OpenToLanScreenMixin extends Screen {
     @Shadow
     private void updateButtonText() {
         throw new AssertionError();
+    }
+
+    private boolean canOpenToLan() {
+        return this.portValid && this.maxPlayersValid;
     }
 
     // Custom buttons must be created before the call to updateButtonText
@@ -69,11 +78,11 @@ public abstract class OpenToLanScreenMixin extends Screen {
                 }));
 
         // Port field
-        this.portField = new TextFieldWidget(this.font, this.width / 2 - 154, this.height - 54, 148, 20,
-                I18n.translate(PORT_TEXT));
+        this.portField = new TextFieldWidget(this.font, this.width / 2 - 154, this.height - 92, 148,
+                20, I18n.translate(PORT_TEXT));
         portField.setText(Integer.toString(port));
         portField.setChangedListener((port) -> {
-            ButtonWidget startButton = (ButtonWidget) this.children().get(4);
+            ButtonWidget startButton = (ButtonWidget) this.children().get(5);
             Integer newPort = null;
             try {
                 newPort = Integer.parseInt(port);
@@ -83,20 +92,44 @@ public abstract class OpenToLanScreenMixin extends Screen {
                 this.port = newPort;
                 this.portValid = true;
                 portField.setEditableColor(0xFFFFFF);
-                startButton.active = true;
             } else {
                 this.port = DEFAULT_PORT;
                 this.portValid = false;
                 portField.setEditableColor(0xFF0000);
-                startButton.active = false;
             }
+            startButton.active = canOpenToLan();
         });
         this.children.add(portField);
 
+        // Max Players field
+        this.maxPlayersField = new TextFieldWidget(this.font, this.width / 2 + 6, this.height - 92,
+                148, 20, I18n.translate(MAX_PLAYERS_TEXT));
+        maxPlayersField.setText(Integer.toString(maxPlayers));
+        maxPlayersField.setChangedListener((maxPlayers) -> {
+            ButtonWidget startButton = (ButtonWidget) this.children().get(5);
+            Integer newMaxPlayers = null;
+            try {
+                newMaxPlayers = Integer.parseInt(maxPlayers);
+            } catch (NumberFormatException e) {
+            }
+            if (newMaxPlayers != null && newMaxPlayers > 0) {
+                this.maxPlayers = newMaxPlayers;
+                this.maxPlayersValid = true;
+                maxPlayersField.setEditableColor(0xFFFFFF);
+            } else {
+                this.maxPlayers = DEFAULT_MAX_PLAYERS;
+                this.maxPlayersValid = false;
+                maxPlayersField.setEditableColor(0xFF0000);
+            }
+            startButton.active = canOpenToLan();
+        });
+        this.children.add(maxPlayersField);
+
         // MOTD field
         IntegratedServer server = this.minecraft.getServer();
-        this.motdField = new TextFieldWidget(this.font, this.width / 2 + 6, this.height - 54, 148, 20,
+        this.motdField = new TextFieldWidget(this.font, this.width / 2 - 154, this.height - 54, 308, 20,
                 I18n.translate(MOTD_TEXT));
+        motdField.setMaxLength(59); // https://minecraft.fandom.com/wiki/Server.properties#motd
         motdField.setText(server.getServerMotd());
         this.children.add(motdField);
     }
@@ -112,11 +145,14 @@ public abstract class OpenToLanScreenMixin extends Screen {
     @Inject(method = "render", at = @At("TAIL"))
     private void renderCustom(int mouseX, int mouseY, float delta, CallbackInfo ci) {
         // Port field text
-        drawString(this.font, I18n.translate(PORT_TEXT), this.width / 2 - 154, this.height - 66, 10526880);
+        drawString(this.font, I18n.translate(PORT_TEXT), this.width / 2 - 154, this.height - 104, 10526880);
+        // Max Players field text
+        drawString(this.font, I18n.translate(MAX_PLAYERS_TEXT), this.width / 2 + 6, this.height - 104, 10526880);
         // MOTD field text
-        drawString(this.font, I18n.translate(MOTD_TEXT), this.width / 2 + 6, this.height - 66, 10526880);
+        drawString(this.font, I18n.translate(MOTD_TEXT), this.width / 2 - 154, this.height - 66, 10526880);
 
         this.portField.render(mouseX, mouseY, delta);
+        this.maxPlayersField.render(mouseX, mouseY, delta);
         this.motdField.render(mouseX, mouseY, delta);
     }
 
@@ -126,6 +162,8 @@ public abstract class OpenToLanScreenMixin extends Screen {
 
         server.setOnlineMode(this.onlineMode);
         server.setPvpEnabled(this.pvpEnabled);
+
+        ((PlayerManagerAccessor) server.getPlayerManager()).setMaxPlayers(this.maxPlayers);
 
         // MOTD needs to be set before openToLan
         // because the LAN pinger calls getServerMotd.
@@ -140,7 +178,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
     }
 
     /**
-     * Allow starting with enter as well as the Open to LAN button.
+     * Allow starting with Enter as well as the Start LAN World button.
      */
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -149,9 +187,9 @@ public abstract class OpenToLanScreenMixin extends Screen {
         } else if (keyCode != GLFW.GLFW_KEY_ENTER && keyCode != GLFW.GLFW_KEY_KP_ENTER) {
             return false;
         } else {
-            if (this.portValid) {
+            if (canOpenToLan()) {
                 // Open to LAN
-                this.method_19851((ButtonWidget) this.children().get(4));
+                this.method_19851((ButtonWidget) this.children().get(5));
             }
             return true;
         }

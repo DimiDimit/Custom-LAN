@@ -1,5 +1,5 @@
 # Custom LAN
-![Screenshot of Custom LAN](https://dimitrodam.com/misc/custom-lan-screenshot.png)
+![Screenshot of Custom LAN](docs/open_to_lan_screen.png)
 A **Fabric** mod that allows you to customize the following of your integrated server:
 * Online Mode
 * PvP
@@ -9,7 +9,7 @@ A **Fabric** mod that allows you to customize the following of your integrated s
 
 It also allows you to start the LAN world by pressing Enter, and extends the `/publish` command:
 ```
-/publish [<port>] [<cheatsAllowed>] [<onlineMode>] [<pvpEnabled>] [<motd>]
+/publish [<port>] [<cheatsAllowed>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<motd>]
 ```
 
 It **only** requires [Fabric Loader](https://fabricmc.net/use/)—[Fabric API](https://modrinth.com/mod/fabric-api) is not required.
