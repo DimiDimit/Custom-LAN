@@ -4,6 +4,7 @@
   "package": "com.dimitrodam.customlan.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "PlayerManagerAccessor",
     "PublishCommandMixin"
   ],
   "client": [
