@@ -87,6 +87,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         IntegratedServer server = this.client.getServer();
         this.motdField = new TextFieldWidget(this.textRenderer, this.width / 2 + 6, this.height - 54, 148, 20,
                 MOTD_TEXT);
+        motdField.setMaxLength(59); // https://minecraft.fandom.com/wiki/Server.properties#motd
         motdField.setText(server.getServerMotd());
         this.addDrawableChild(motdField);
     }
