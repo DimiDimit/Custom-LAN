@@ -1,4 +1,10 @@
 {
+  "commands.publish.failed.port_change": "Unable to change port, still listening on port %s",
+  "commands.publish.saved": "Local game hosting settings saved",
+  "commands.publish.stopped": "Stopped hosting local game",
+  "menu.editLan": "Edit LAN",
+  "lanServer.save": "Save",
+  "lanServer.stop": "Stop",
   "lanServer.onlineMode": "Online Mode",
   "lanServer.pvpEnabled": "PvP",
   "lanServer.port": "Port",
