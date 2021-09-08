@@ -2,5 +2,6 @@
   "lanServer.onlineMode": "Modalità Online",
   "lanServer.pvpEnabled": "PvP",
   "lanServer.port": "Porta",
+  "lanServer.maxPlayers": "Giocatori Massimi",
   "lanServer.motd": "MOTD"
 }
