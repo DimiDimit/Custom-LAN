@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -37,6 +38,8 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private static final String PUBLISH_PORT_CHANGE_FAILED_TEXT = "commands.publish.failed.port_change";
     private static final Text PUBLISH_SAVED_TEXT = new TranslatableText("commands.publish.saved");
     private static final Text PUBLISH_STOPPED_TEXT = new TranslatableText("commands.publish.stopped");
+    private static final Text ALLOW_COMMANDS_EXPLANATION_TEXT = new TranslatableText(
+            "lanServer.allowCommandsExplanation");
     private static final Text START_TEXT = new TranslatableText("lanServer.start");
     private static final Text SAVE_TEXT = new TranslatableText("lanServer.save");
     private static final Text STOP_TEXT = new TranslatableText("lanServer.stop");
@@ -46,6 +49,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private static final Text MAX_PLAYERS_TEXT = new TranslatableText("lanServer.maxPlayers");
     private static final Text MOTD_TEXT = new TranslatableText("lanServer.motd");
 
+    private MultilineText allowCommandsExplanationText = MultilineText.EMPTY;
     private TextFieldWidget motdField;
     private ButtonWidget startSaveButton;
 
@@ -58,8 +62,6 @@ public abstract class OpenToLanScreenMixin extends Screen {
 
     @Shadow
     private GameMode gameMode;
-    @Shadow
-    private boolean allowCommands;
 
     protected OpenToLanScreenMixin(Text title) {
         super(title);
@@ -74,17 +76,26 @@ public abstract class OpenToLanScreenMixin extends Screen {
         IntegratedServer server = this.client.getServer();
 
         this.gameMode = server.getDefaultGameMode();
-        this.allowCommands = server.getPlayerManager().areCheatsAllowed();
         this.onlineMode = server.isOnlineMode();
         this.pvpEnabled = server.isPvpEnabled();
         this.port = server.isRemote() ? server.getServerPort() : DEFAULT_PORT;
         this.maxPlayers = server.getMaxPlayerCount();
     }
 
+    @SuppressWarnings("unchecked")
     @Inject(method = "init", at = @At("TAIL"))
     private void addCustomWidgets(CallbackInfo ci) {
         IntegratedServer server = this.client.getServer();
         boolean alreadyOpenedToLan = server.isRemote();
+
+        // Replace the Allow Cheats button
+        // with explanation text below it (added in renderText)
+        // and have the Game Mode button fill its place.
+        this.remove(this.children().get(1));
+        CyclingButtonWidget<GameMode> gameModeButton = (CyclingButtonWidget<GameMode>) this.children().get(0);
+        gameModeButton.setWidth(310);
+        this.allowCommandsExplanationText = MultilineText.create(this.textRenderer, ALLOW_COMMANDS_EXPLANATION_TEXT,
+                308);
 
         // Online Mode button
         this.addDrawableChild(CyclingButtonWidget.onOffBuilder(this.onlineMode).build(this.width / 2 - 155, 124, 150,
@@ -149,7 +160,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         this.addDrawableChild(motdField);
 
         // Replace the Start LAN World button with a Start/Save button.
-        this.remove(this.children().get(2));
+        this.remove(this.children().get(1));
         this.startSaveButton = this.addDrawableChild(
                 new ButtonWidget(this.width / 2 - 155, this.height - 28, alreadyOpenedToLan ? 73 : 150, 20,
                         alreadyOpenedToLan ? SAVE_TEXT : START_TEXT, button -> this.startOrSave()));
@@ -160,13 +171,16 @@ public abstract class OpenToLanScreenMixin extends Screen {
         }
 
         // Move the Cancel button to the end for consistent Tab order.
-        ButtonWidget cancelButton = (ButtonWidget) this.children().get(2);
+        ButtonWidget cancelButton = (ButtonWidget) this.children().get(1);
         this.remove(cancelButton);
         this.addDrawableChild(cancelButton);
     }
 
     @Inject(method = "render", at = @At("TAIL"))
     private void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        // Explanation text on how to enable/disable commands
+        this.allowCommandsExplanationText.drawWithShadow(matrices, this.width / 2 - 154, 148, 9, 10526880);
+
         // Port field text
         drawTextWithShadow(matrices, this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104, 10526880);
         // Max Players field text
@@ -223,7 +237,6 @@ public abstract class OpenToLanScreenMixin extends Screen {
             }
 
             server.setDefaultGameMode(this.gameMode);
-            playerManager.setCheatsAllowed(this.allowCommands);
             // The players' permissions may have changed, so send the new command trees.
             for (ServerPlayerEntity player : playerManager.getPlayerList()) {
                 playerManager.sendCommandTree(player); // Do not use server.getCommandManager().sendCommandTree(player)
@@ -232,7 +245,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
             this.client.inGameHud.getChatHud().addMessage(PUBLISH_SAVED_TEXT);
         } else {
             Text message;
-            if (server.openToLan(this.gameMode, this.allowCommands, this.port)) {
+            if (server.openToLan(this.gameMode, false, this.port)) {
                 server.setDefaultGameMode(this.gameMode); // Prevents the gamemode from being forced.
                 message = new TranslatableText(PUBLISH_STARTED_TEXT, new Object[] { this.port });
             } else {
