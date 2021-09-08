@@ -1,5 +1,4 @@
 {
-
   "commands.publish.failed.port_change": "Impossibile cambiare porta, è ancora effettiva la porta %s",
   "commands.publish.saved": "Impostazioni dell'hosting locale salvate con successo",
   "commands.publish.stopped": "Hosting della partita locale arrestato",
@@ -12,5 +11,4 @@
   "lanServer.port": "Porta",
   "lanServer.maxPlayers": "Giocatori Massimi",
   "lanServer.motd": "MOTD"
-
 }
