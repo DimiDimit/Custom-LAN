@@ -1,4 +1,11 @@
 {
+  "commands.publish.failed.port_change": "Неуспешен опит за смяна на порт, още се използва порт %s",
+  "commands.publish.saved": "Настройките за хостване на локална игра са записани",
+  "commands.publish.stopped": "Хостването на локална игра е спряно",
+  "menu.editLan": "Редактиране на LAN",
+  "lanServer.allowCommandsExplanation": "За да разрешите или забраните на играч (включително и Вие) да използва команди, използвайте командите /op и /deop.\nСъвет: Това работи и без отваряне за LAN!",
+  "lanServer.save": "Записване",
+  "lanServer.stop": "Спиране",
   "lanServer.onlineMode": "Онлайн режим",
   "lanServer.pvpEnabled": "Играч срещу играч",
   "lanServer.port": "Мрежов порт",
