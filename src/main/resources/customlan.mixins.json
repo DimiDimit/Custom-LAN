@@ -3,11 +3,15 @@
   "minVersion": "0.8",
   "package": "com.dimitrodam.customlan.mixin",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [
-    "PlayerManagerAccessor",
-    "PublishCommandMixin"
-  ],
   "client": [
+    "PlayerManagerAccessor",
+    "PlayerManagerMixin",
+    "CommandManagerMixin",
+    "ServerConfigListAccessor",
+    "OpCommandMixin",
+    "PublishCommandMixin",
+    "IntegratedServerAccessor",
+    "GameMenuScreenMixin",
     "OpenToLanScreenMixin"
   ],
   "injectors": {
