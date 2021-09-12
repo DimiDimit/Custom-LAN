@@ -5,7 +5,7 @@ A **Fabric** mod that allows you to:
 * Change the settings mid-game (including the port) and stop the server without quitting the world
 * Change who can use cheats individually using the `/op` and `/deop` commands and cheat in singleplayer without opening to LAN (replaces the Allow Cheats button)
 
-It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well:
+It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (e.g. anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well:
 ```
 /publish [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<motd>]
 /publish stop
