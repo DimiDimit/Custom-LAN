@@ -1,0 +1,14 @@
+{
+  "commands.publish.failed.port_change": "Невозможно сменить порт, всё ещё ожидается %s",
+  "commands.publish.saved": "Настройки локального сервера сохранены",
+  "commands.publish.stopped": "Локальный серер остановлен",
+  "menu.editLan": "Изменить LAN",
+  "lanServer.allowCommandsExplanation": "Чтобы разрешить/запретить игроку (включая себя) доступ к выполнению команд, используйте /op или /deop.\nСовет: Вы можете использовать это даже без открытия локального сервера!",
+  "lanServer.save": "Сохранить",
+  "lanServer.stop": "Остановить",
+  "lanServer.onlineMode": "Проверка лицензии",
+  "lanServer.pvpEnabled": "PvP",
+  "lanServer.port": "Порт",
+  "lanServer.maxPlayers": "Лимит игроков",
+  "lanServer.motd": "Описание"
+}
