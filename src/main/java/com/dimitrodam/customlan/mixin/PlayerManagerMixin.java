@@ -83,7 +83,7 @@ public class PlayerManagerMixin {
     @Inject(method = "getOpNames", at = @At("HEAD"), cancellable = true)
     private void addHostToOpNames(CallbackInfoReturnable<String[]> ci) {
         if (this.server.getSaveProperties().areCommandsAllowed()) {
-            ci.setReturnValue(ArrayUtils.add(this.ops.getNames(), 0, this.server.getSinglePlayerName()));
+            ci.setReturnValue(ArrayUtils.insert(0, this.ops.getNames(), this.server.getSinglePlayerName()));
         }
     }
 
