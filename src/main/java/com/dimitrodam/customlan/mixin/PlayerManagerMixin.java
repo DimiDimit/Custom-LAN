@@ -4,7 +4,7 @@ import com.dimitrodam.customlan.SetCommandsAllowed;
 import com.mojang.authlib.GameProfile;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -33,13 +33,13 @@ public class PlayerManagerMixin {
     @Shadow
     @Final
     private MinecraftServer server;
+    @Final
     @Shadow
     @Mutable
     private OperatorList ops;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(MinecraftServer server, DynamicRegistryManager.Impl registryManager, WorldSaveHandler saveHandler,
-            int maxPlayers, CallbackInfo ci) {
+    private void init(MinecraftServer server, DynamicRegistryManager.Immutable registryManager, WorldSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
         this.ops = new OperatorList(
                 server.getSavePath(WorldSavePath.ROOT).resolve(PlayerManager.OPERATORS_FILE.getPath()).toFile());
 
