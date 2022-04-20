@@ -38,7 +38,7 @@ public class PlayerManagerMixin {
     private OperatorList ops;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(MinecraftServer server, DynamicRegistryManager.Impl registryManager, WorldSaveHandler saveHandler,
+    private void init(MinecraftServer server, DynamicRegistryManager.ImmutableImpl registryManager, WorldSaveHandler saveHandler,
             int maxPlayers, CallbackInfo ci) {
         this.ops = new OperatorList(
                 server.getSavePath(WorldSavePath.ROOT).resolve(PlayerManager.OPERATORS_FILE.getPath()).toFile());
