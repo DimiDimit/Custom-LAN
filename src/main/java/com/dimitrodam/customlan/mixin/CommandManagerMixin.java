@@ -2,6 +2,7 @@ package com.dimitrodam.customlan.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
 
+import net.minecraft.command.CommandRegistryAccess;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,8 +21,8 @@ public class CommandManagerMixin {
     @Final
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"), method = "<init>")
-    private void addCustomCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At(value = "TAIL"))
+    private void addCustomCommands(CommandManager.RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
         OpCommand.register(this.dispatcher);
         DeOpCommand.register(this.dispatcher);
     }

@@ -42,9 +42,7 @@ import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.server.command.PublishCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Mixin(PublishCommand.class)
 public class PublishCommandMixin {
@@ -53,11 +51,11 @@ public class PublishCommandMixin {
     private static SimpleCommandExceptionType FAILED_EXCEPTION;
 
     private static final DynamicCommandExceptionType PORT_CHANGE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            oldPort -> new TranslatableText("commands.publish.failed.port_change", new Object[] { oldPort }));
-    private static final Text SERVER_STOPPED_TEXT = new TranslatableText("multiplayer.disconnect.server_shutdown");
+            oldPort -> Text.translatable("commands.publish.failed.port_change", new Object[] { oldPort }));
+    private static final Text SERVER_STOPPED_TEXT = Text.translatable("multiplayer.disconnect.server_shutdown");
     private static final String PUBLISH_SUCCESS_TEXT = "commands.publish.success";
-    private static final Text PUBLISH_SAVED_TEXT = new TranslatableText("commands.publish.saved");
-    private static final Text PUBLISH_STOPPED_TEXT = new TranslatableText("commands.publish.stopped");
+    private static final Text PUBLISH_SAVED_TEXT = Text.translatable("commands.publish.saved");
+    private static final Text PUBLISH_STOPPED_TEXT = Text.translatable("commands.publish.stopped");
 
     @Inject(method = "register", at = @At("HEAD"), cancellable = true)
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CallbackInfo ci) {
@@ -120,7 +118,7 @@ public class PublishCommandMixin {
         if (motd != null) {
             server.setMotd(motd);
             // Metadata doesn't get updated automatically.
-            server.getServerMetadata().setDescription(new LiteralText(motd));
+            server.getServerMetadata().setDescription(Text.literal(motd));
         }
 
         if (server.isRemote()) { // Already opened to LAN
@@ -163,7 +161,7 @@ public class PublishCommandMixin {
                 throw FAILED_EXCEPTION.create();
             }
 
-            source.sendFeedback(new TranslatableText(PUBLISH_SUCCESS_TEXT, new Object[] { port }), true);
+            source.sendFeedback(Text.translatable(PUBLISH_SUCCESS_TEXT, new Object[] { port }), true);
         }
 
         return port;
