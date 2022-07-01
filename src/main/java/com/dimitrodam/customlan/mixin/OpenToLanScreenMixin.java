@@ -19,35 +19,33 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.server.LanServerPinger;
+import net.minecraft.client.network.LanServerPinger;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.world.GameMode;
 
 @Mixin(OpenToLanScreen.class)
 public abstract class OpenToLanScreenMixin extends Screen {
     private static final int DEFAULT_PORT = 25565;
-    private static final Text SERVER_STOPPED_TEXT = new TranslatableText("multiplayer.disconnect.server_shutdown");
+    private static final Text SERVER_STOPPED_TEXT = Text.translatable("multiplayer.disconnect.server_shutdown");
     private static final String PUBLISH_STARTED_TEXT = "commands.publish.started";
-    private static final Text PUBLISH_FAILED_TEXT = new TranslatableText("commands.publish.failed");
+    private static final Text PUBLISH_FAILED_TEXT = Text.translatable("commands.publish.failed");
     private static final String PUBLISH_PORT_CHANGE_FAILED_TEXT = "commands.publish.failed.port_change";
-    private static final Text PUBLISH_SAVED_TEXT = new TranslatableText("commands.publish.saved");
-    private static final Text PUBLISH_STOPPED_TEXT = new TranslatableText("commands.publish.stopped");
-    private static final Text ALLOW_COMMANDS_EXPLANATION_TEXT = new TranslatableText(
+    private static final Text PUBLISH_SAVED_TEXT = Text.translatable("commands.publish.saved");
+    private static final Text PUBLISH_STOPPED_TEXT = Text.translatable("commands.publish.stopped");
+    private static final Text ALLOW_COMMANDS_EXPLANATION_TEXT = Text.translatable(
             "lanServer.allowCommandsExplanation");
-    private static final Text START_TEXT = new TranslatableText("lanServer.start");
-    private static final Text SAVE_TEXT = new TranslatableText("lanServer.save");
-    private static final Text STOP_TEXT = new TranslatableText("lanServer.stop");
-    private static final Text ONLINE_MODE_TEXT = new TranslatableText("lanServer.onlineMode");
-    private static final Text PVP_ENABLED_TEXT = new TranslatableText("lanServer.pvpEnabled");
-    private static final Text PORT_TEXT = new TranslatableText("lanServer.port");
-    private static final Text MAX_PLAYERS_TEXT = new TranslatableText("lanServer.maxPlayers");
-    private static final Text MOTD_TEXT = new TranslatableText("lanServer.motd");
+    private static final Text START_TEXT = Text.translatable("lanServer.start");
+    private static final Text SAVE_TEXT = Text.translatable("lanServer.save");
+    private static final Text STOP_TEXT = Text.translatable("lanServer.stop");
+    private static final Text ONLINE_MODE_TEXT = Text.translatable("lanServer.onlineMode");
+    private static final Text PVP_ENABLED_TEXT = Text.translatable("lanServer.pvpEnabled");
+    private static final Text PORT_TEXT = Text.translatable("lanServer.port");
+    private static final Text MAX_PLAYERS_TEXT = Text.translatable("lanServer.maxPlayers");
+    private static final Text MOTD_TEXT = Text.translatable("lanServer.motd");
 
     private MultilineText allowCommandsExplanationText = MultilineText.EMPTY;
     private TextFieldWidget motdField;
@@ -205,7 +203,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         String motd = this.motdField.getText();
         server.setMotd(motd);
         // Metadata doesn't get updated automatically.
-        server.getServerMetadata().setDescription(new LiteralText(motd));
+        server.getServerMetadata().setDescription(Text.literal(motd));
 
         if (server.isRemote()) { // Already opened to LAN
             int oldPort = server.getServerPort();
@@ -220,7 +218,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
                     portChanged = true;
                 } catch (IOException e) {
                     this.client.inGameHud.getChatHud().addMessage(
-                            new TranslatableText(PUBLISH_PORT_CHANGE_FAILED_TEXT, new Object[] { oldPort }));
+                            Text.translatable(PUBLISH_PORT_CHANGE_FAILED_TEXT, new Object[] { oldPort }));
                 }
             }
 
@@ -247,7 +245,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
             Text message;
             if (server.openToLan(this.gameMode, false, this.port)) {
                 server.setDefaultGameMode(this.gameMode); // Prevents the gamemode from being forced.
-                message = new TranslatableText(PUBLISH_STARTED_TEXT, new Object[] { this.port });
+                message = Text.translatable(PUBLISH_STARTED_TEXT, new Object[] { this.port });
             } else {
                 message = PUBLISH_FAILED_TEXT;
             }

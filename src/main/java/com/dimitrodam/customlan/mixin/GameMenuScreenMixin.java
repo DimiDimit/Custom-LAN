@@ -10,11 +10,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Mixin(GameMenuScreen.class)
 public class GameMenuScreenMixin extends Screen {
-    private static final Text EDIT_LAN_TEXT = new TranslatableText("menu.editLan");
+    private static final Text EDIT_LAN_TEXT = Text.translatable("menu.editLan");
 
     protected GameMenuScreenMixin(Text title) {
         super(title);

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.server.LanServerPinger;
+import net.minecraft.client.network.LanServerPinger;
 import net.minecraft.server.integrated.IntegratedServer;
 
 @Mixin(IntegratedServer.class)
