@@ -1,10 +1,7 @@
 package com.dimitrodam.customlan.mixin;
 
-import com.dimitrodam.customlan.SetCommandsAllowed;
-import com.mojang.authlib.GameProfile;
-
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -14,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.dimitrodam.customlan.SetCommandsAllowed;
+import com.mojang.authlib.GameProfile;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.OperatorEntry;
@@ -34,12 +34,13 @@ public class PlayerManagerMixin {
     @Final
     private MinecraftServer server;
     @Shadow
+    @Final
     @Mutable
     private OperatorList ops;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(MinecraftServer server, DynamicRegistryManager.Impl registryManager, WorldSaveHandler saveHandler,
-            int maxPlayers, CallbackInfo ci) {
+    private void init(MinecraftServer server, DynamicRegistryManager.Immutable registryManager,
+            WorldSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
         this.ops = new OperatorList(
                 server.getSavePath(WorldSavePath.ROOT).resolve(PlayerManager.OPERATORS_FILE.getPath()).toFile());
 
