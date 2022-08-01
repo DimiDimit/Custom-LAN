@@ -12,6 +12,7 @@
     "OpCommandMixin",
     "PublishCommandMixin",
     "IntegratedServerAccessor",
+    "ButtonWidgetAccessor",
     "GameMenuScreenMixin",
     "OpenToLanScreenMixin"
   ],
