@@ -4,6 +4,7 @@ A **Fabric** mod that allows you to:
 * Customize more of your integrated server (Online Mode, PvP, Port, Max Players, MOTD)
 * Change the settings mid-game (including the port) and stop the server without quitting the world
 * Change who can use cheats individually using the `/op` and `/deop` commands and cheat in singleplayer without opening to LAN (replaces the Allow Cheats button)
+* Manage bans with `/ban`, `/ban-ip`, `/banlist`, `/pardon` and `/pardon-ip`, and whitelist players with `/whitelist` (use `/whitelist on`/`off` to enable/disable)
 
 It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (e.g. anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well:
 ```
@@ -18,6 +19,12 @@ I'm **not** planning on porting it to **Forge** myself *for now* ([this](https:/
 
 ## Explanation of `/op` and `/deop`
 `/op` and `/deop` work like in dedicated servers.
-You can also use them on yourself, the owner. Doing this will add/remove the "Cheats" label on the world (as if you've NBT edited the `allowCommands` field), and you can use these commands without opening to LAN as well, replacing the Vanilla method of opening to LAN, cheating, quitting the world and entering it again.
+You can also use them on yourself, the host. Doing this will add/remove the "Cheats" label on the world (as if you've NBT edited the `allowCommands` field), and you can use these commands without opening to LAN as well, replacing the Vanilla method of opening to LAN, cheating, quitting the world and entering it again.
 
-Operators are persisted per-world in an `ops.json` file inside that world's directory. To allow operators to assign and remove other operators, change their `level` in the `ops.json` file to `3` or higher (the default is `2`, while level `4` allows them to use `/publish`). You, as the host, can always assign and remove operators, even if you're not an operator yourself.
+Operators are persisted per-world in an `ops.json` file inside that world's directory. To allow operators to assign and remove other operators, as well as ban and whitelist players, change their `level` in the `ops.json` file to `3` or higher (the default is `2`, while level `4` allows them to use `/publish`). You, as the host, can always assign and remove operators, even if you're not an operator yourself.
+
+## Explanation of bans and whitelists
+These commands also work like in dedicated servers, though you cannot ban or whitelist the host.
+Enabling the whitelist does **not** kick all non-whitelisted players (i.e. `enforce-whitelist` is always `false`).
+
+The files used are also per-world and the same as on dedicated servers—`banned-players.json`, `banned-ips.json`, `whitelist.json`—though whether the whitelist is enabled is stored in `data/customlan.dat`.
