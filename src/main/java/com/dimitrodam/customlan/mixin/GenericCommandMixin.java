@@ -25,7 +25,9 @@ public class GenericCommandMixin {
      * {@code /ban}, {@code /ban-ip}, {@code /banlist},
      * {@code /pardon}, {@code /pardon-ip} and {@code /whitelist} commands.
      */
-    @Inject(method = "(Lnet/minecraft/server/command/ServerCommandSource;)Z", at = @At("HEAD"), cancellable = true)
+    // The regex is a workaround for
+    // https://github.com/SpongePowered/Mixin/issues/467.
+    @Inject(method = "desc=/^\\(L(?:net\\/minecraft\\/server\\/command\\/ServerCommandSource|net\\/minecraft\\/class_2168);\\)Z$/", at = @At("HEAD"), cancellable = true)
     private static void checkPermissions(ServerCommandSource source, CallbackInfoReturnable<Boolean> ci) {
         Entity entity = source.getEntity();
         if (entity instanceof ServerPlayerEntity
