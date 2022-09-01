@@ -1,5 +1,5 @@
 package com.dimitrodam.customlan;
 
 public interface SetCommandsAllowed {
-    public void customlan$setCommandsAllowed(boolean allowCommands);
+    public void setCommandsAllowed(boolean allowCommands);
 }
