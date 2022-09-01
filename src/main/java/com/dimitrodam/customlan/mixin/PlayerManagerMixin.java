@@ -106,7 +106,7 @@ public class PlayerManagerMixin {
     @Redirect(method = "addToOperators", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/OperatorList;add(Lnet/minecraft/server/ServerConfigEntry;)V"))
     private void addToOperators(OperatorList ops, ServerConfigEntry<GameProfile> entry, GameProfile profile) {
         if (this.server.isHost(profile)) {
-            ((SetCommandsAllowed) this.server.getSaveProperties()).customlan$setCommandsAllowed(true);
+            ((SetCommandsAllowed) this.server.getSaveProperties()).setCommandsAllowed(true);
         } else {
             ops.add((OperatorEntry) entry);
             this.saveOpList();
@@ -116,7 +116,7 @@ public class PlayerManagerMixin {
     @Redirect(method = "removeFromOperators", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/OperatorList;remove(Ljava/lang/Object;)V"))
     private void removeFromOperators(OperatorList ops, Object entry, GameProfile profile) {
         if (this.server.isHost(profile)) {
-            ((SetCommandsAllowed) this.server.getSaveProperties()).customlan$setCommandsAllowed(false);
+            ((SetCommandsAllowed) this.server.getSaveProperties()).setCommandsAllowed(false);
         } else {
             ops.remove(profile);
             this.saveOpList();

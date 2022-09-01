@@ -16,10 +16,15 @@
   "icon": "assets/customlan/icon.png",
 
   "environment": "client",
+  "entrypoints": {
+    "main": ["com.dimitrodam.customlan.CustomLan"]
+  },
   "mixins": ["customlan.mixins.json"],
 
   "depends": {
     "fabric-resource-loader-v0": "*",
+    "fabric-registry-sync-v0": "*",
+    "fabric-command-api-v2": "*",
     "fabricloader": ">=0.11.3",
     "minecraft": ["1.19.1", "1.19.2"]
   }

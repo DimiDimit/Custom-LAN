@@ -6,7 +6,7 @@
   "client": [
     "PlayerManagerAccessor",
     "PlayerManagerMixin",
-    "CommandManagerMixin",
+    "MinecraftServerMixin",
     "LevelPropertiesMixin",
     "ServerConfigListAccessor",
     "GenericCommandMixin",

@@ -24,13 +24,21 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	// I do not (yet), actually.
-	// modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	// Fabric Resource Loader is needed to load the lang files. Might as well include it directly.
-	// modImplementation doesn't seem to be needed for the built JAR, but it does seem to for runClient.
-	modImplementation fabricApi.module("fabric-resource-loader-v0", project.fabric_version)
-	include fabricApi.module("fabric-resource-loader-v0", project.fabric_version)
+	Set<String> fabricApiModules = [
+		// Transitive dependencies
+		"fabric-api-base",
+		"fabric-networking-api-v1",
+
+		// Dependencies
+		"fabric-resource-loader-v0",
+		"fabric-registry-sync-v0",
+		"fabric-command-api-v2",
+	];
+	fabricApiModules.forEach {
+		include(modImplementation(fabricApi.module(it, project.fabric_version)))
+	}
+
+	include(implementation("org.apache.commons:commons-text:${project.apache_commons_text_version}"))
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
