@@ -1,14 +1,14 @@
 # Custom LAN
 ![Screenshot of Custom LAN](docs/open_to_lan_screen.png)
 A **Fabric** mod that allows you to:
-* Customize more of your integrated server (Online Mode, PvP, Port, Max Players, MOTD)
-* Use ampersands (`&`) for [formatting codes](https://minecraft.fandom.com/wiki/Formatting_codes) instead of section signs (`§`) and variables (`${username}` and `${world}`) in the MOTD
+* Customize more of your integrated server (Online Mode, PvP, Max Players, MOTD)
+* Use ampersands (`&`) for [formatting codes](https://minecraft.fandom.com/wiki/Formatting_codes) instead of section signs (`§`) and variables (e.g. `${username}`, `${world}`) in the MOTD
 * Change the settings mid-game (including the port) and stop the server without quitting the world
 * Save the settings globally or per-world (they are loaded automatically with per-world settings taking priority over the global ones, which take priority over the system defaults)
 * Change who can use cheats individually using the `/op` and `/deop` commands and cheat in singleplayer without opening to LAN (replaces the Allow Cheats button)
 * Manage bans with `/ban`, `/ban-ip`, `/banlist`, `/pardon` and `/pardon-ip`, and whitelist players with `/whitelist` (use `/whitelist on`/`off` to enable/disable)
 
-It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (e.g. anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well:
+It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (e.g. anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well (use a port of `-1` to randomize it):
 ```
 /publish [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<motd>]
 /publish [perworld|global|system] [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<motd>]
@@ -25,8 +25,8 @@ In the MOTD, ampersands (`&`) are replaced with section signs (`§`) to allow yo
 You can use two ampersands in a row (`&&`) to get an actual ampersand (`&`).
 
 The following variables will be expanded using [Apache Commons Text's `StringSubstitutor`](https://commons.apache.org/proper/commons-text/apidocs/org/apache/commons/text/StringSubstitutor.html):
-* `${username}` – the host's username (e.g. "DimiDimit")
-* `${world}` – the world's name (e.g. "New World")
+* `${username}` – the host's username (e.g. “DimiDimit”)
+* `${world}` – the world's name (e.g. “New World”)
 
 ## Explanation of saved settings
 The settings can be saved per-world or globally. When the Open to LAN screen is opened, the settings are loaded automatically in that order, and they can also be loaded manually using the Load buttons.
@@ -39,7 +39,7 @@ The global settings are stored in `.minecraft/config/customlan.json`, while the 
 
 ## Explanation of `/op` and `/deop`
 `/op` and `/deop` work like in dedicated servers.
-You can also use them on yourself, the host. Doing this will add/remove the "Cheats" label on the world (as if you've NBT edited the `allowCommands` field), and you can use these commands without opening to LAN as well, replacing the Vanilla method of opening to LAN, cheating, quitting the world and entering it again.
+You can also use them on yourself, the host. Doing this will add/remove the “Cheats” label on the world (as if you've NBT edited the `allowCommands` field), and you can use these commands without opening to LAN as well, replacing the Vanilla method of opening to LAN, cheating, quitting the world and entering it again.
 
 Operators are persisted per-world in an `ops.json` file inside that world's directory. To allow operators to assign and remove other operators, as well as ban and whitelist players, change their `level` in the `ops.json` file to `3` or higher (the default is `2`, while level `4` allows them to use `/publish`). You, as the host, can always assign and remove operators, even if you're not an operator yourself.
 

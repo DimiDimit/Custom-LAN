@@ -3,12 +3,11 @@
   "commands.publish.saved": "Impostazioni dell'hosting locale salvate con successo",
   "commands.publish.stopped": "Hosting della partita locale arrestato",
   "menu.editLan": "Modifica LAN",
-  "lanServer.allowCommandsExplanation": "Per permettere o negare a un giocatore (incluso te stesso) l'uso dei comandi, usa i comandi /op e /deop.\nSuggerimento: Questo funziona anche senza aprire in LAN!",
+  "lanServer.explanation": "Per permettere o negare a un giocatore (incluso te stesso) l'uso dei comandi, usa i comandi /op e /deop.\nSuggerimento: Questo funziona anche senza aprire in LAN!",
   "lanServer.save": "Salva",
   "lanServer.stop": "Arresta",
   "lanServer.onlineMode": "Modalità Online",
   "lanServer.pvpEnabled": "PvP",
-  "lanServer.port": "Porta",
   "lanServer.maxPlayers": "Giocatori Massimi",
   "lanServer.motd": "MOTD"
 }

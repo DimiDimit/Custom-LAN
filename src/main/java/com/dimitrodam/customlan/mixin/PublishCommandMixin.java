@@ -38,10 +38,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
+import net.minecraft.client.util.NetworkUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.PublishCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
 import net.minecraft.world.GameMode;
 
 @Mixin(PublishCommand.class)
@@ -60,7 +62,7 @@ public class PublishCommandMixin {
         @Inject(method = "register", at = @At("HEAD"), cancellable = true)
         private static void register(CommandDispatcher<ServerCommandSource> dispatcher, CallbackInfo ci) {
                 List<Pair<ArgumentBuilder<ServerCommandSource, ?>, Consumer<PublishCommandArgumentValues>>> arguments = Arrays
-                                .asList(Pair.of(argument("port", integer(0, 65535)),
+                                .asList(Pair.of(argument("port", integer(-1, 65535)),
                                                 argumentValues -> argumentValues.getPort = context -> getInteger(
                                                                 context, "port")),
                                                 Pair.of(argument("onlineMode", bool()),
@@ -161,23 +163,20 @@ public class PublishCommandMixin {
         }
 
         private static int execute(ServerCommandSource source, boolean onlineMode, boolean pvpEnabled,
-                        int port, int maxPlayers, GameMode gameMode, String rawMotd) throws CommandSyntaxException {
+                        int rawPort, int maxPlayers, GameMode gameMode, String rawMotd) throws CommandSyntaxException {
+                int port = rawPort != -1 ? rawPort : NetworkUtils.findLocalPort();
                 try {
-                        CustomLan.startOrSaveLan(source.getServer(), gameMode, onlineMode, pvpEnabled, port, maxPlayers,
-                                        rawMotd,
-                                        motd -> source.sendFeedback(
-                                                        Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
-                                                                        new Object[] { port, motd }),
-                                                        true),
-                                        motd -> source.sendFeedback(
-                                                        Text.translatable(PUBLISH_SAVED_TEXT,
-                                                                        new Object[] { port, motd }),
-                                                        true),
+                        CustomLan.startOrSaveLan(source.getServer(), gameMode, onlineMode, pvpEnabled,
+                                        port, maxPlayers, rawMotd,
+                                        motd -> source.sendFeedback(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
+                                                        Texts.bracketedCopyable(String.valueOf(port)), motd), true),
+                                        motd -> source.sendFeedback(Text.translatable(PUBLISH_SAVED_TEXT,
+                                                        Texts.bracketedCopyable(String.valueOf(port)), motd), true),
                                         () -> {
                                                 throw new RuntimeException(FAILED_EXCEPTION.create());
-                                        }, oldPort -> source.sendError(
-                                                        Text.translatable(PUBLISH_PORT_CHANGE_FAILED_TEXT,
-                                                                        new Object[] { oldPort })));
+                                        },
+                                        oldPort -> source.sendError(Text.translatable(PUBLISH_PORT_CHANGE_FAILED_TEXT,
+                                                        Texts.bracketedCopyable(String.valueOf(oldPort)))));
                 } catch (RuntimeException e) {
                         if (e.getCause() instanceof CommandSyntaxException cause) {
                                 throw cause;

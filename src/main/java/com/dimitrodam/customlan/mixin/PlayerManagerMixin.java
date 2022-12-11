@@ -20,6 +20,8 @@ import com.dimitrodam.customlan.CustomLanState;
 import com.dimitrodam.customlan.SetCommandsAllowed;
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.registry.CombinedDynamicRegistries;
+import net.minecraft.registry.ServerDynamicRegistryType;
 import net.minecraft.server.BannedIpList;
 import net.minecraft.server.BannedPlayerList;
 import net.minecraft.server.MinecraftServer;
@@ -30,7 +32,6 @@ import net.minecraft.server.ServerConfigEntry;
 import net.minecraft.server.Whitelist;
 import net.minecraft.text.Text;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.WorldSaveHandler;
 
 @Mixin(PlayerManager.class)
@@ -67,7 +68,7 @@ public class PlayerManagerMixin {
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(MinecraftServer server, DynamicRegistryManager.Immutable registryManager,
+    private void init(MinecraftServer server, CombinedDynamicRegistries<ServerDynamicRegistryType> registryManager,
             WorldSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
         this.ops = new OperatorList(this.toWorldSpecificFile(PlayerManager.OPERATORS_FILE));
         this.bannedProfiles = new BannedPlayerList(this.toWorldSpecificFile(PlayerManager.BANNED_PLAYERS_FILE));

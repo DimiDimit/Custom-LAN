@@ -18,6 +18,6 @@ public class LevelPropertiesMixin implements SetCommandsAllowed {
     @Override
     public void setCommandsAllowed(boolean allowCommands) {
         this.levelInfo = new LevelInfo(levelInfo.getLevelName(), levelInfo.getGameMode(), levelInfo.isHardcore(),
-                levelInfo.getDifficulty(), allowCommands, levelInfo.getGameRules(), levelInfo.getDataPackSettings());
+                levelInfo.getDifficulty(), allowCommands, levelInfo.getGameRules(), levelInfo.getDataConfiguration());
     }
 }

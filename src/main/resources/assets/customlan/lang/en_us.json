@@ -9,7 +9,7 @@
   "commands.banip.failed.host": "Nothing changed. You cannot ban the IP of the server's host",
   "commands.whitelist.add.failed.host": "You cannot whitelist the server's host",
   "menu.editLan": "Edit LAN",
-  "lanServer.allowCommandsExplanation": "To allow/disallow a player (including yourself) to use commands, use the /op and /deop commands.\nTip: This works without opening to LAN as well!",
+  "lanServer.explanation": "To allow/disallow a player (including yourself) to use commands, use the /op and /deop commands.\nTip: This works without opening to LAN as well!\nYou can also ban and whitelist players using the respective commands.",
   "lanServer.perWorld": "Per-world",
   "lanServer.global": "Global",
   "lanServer.system": "System",
@@ -22,7 +22,8 @@
   "lanServer.stop": "Stop",
   "lanServer.onlineMode": "Online Mode",
   "lanServer.pvpEnabled": "PvP",
-  "lanServer.port": "Port",
   "lanServer.maxPlayers": "Max Players",
-  "lanServer.motd": "MOTD"
+  "lanServer.maxPlayers.invalid": "Not a valid number of players.\nPlease enter a number greater than %s.",
+  "lanServer.motd": "MOTD",
+  "lanServer.motd.description": "You can use ampersands (&&) instead of section signs to enter formatting codes (use two ampersands in a row to get an actual ampersand).\nThe following variables will be expanded:\n$${username} - the host's username (${username})\n$${world} - the world's name (${world})"
 }

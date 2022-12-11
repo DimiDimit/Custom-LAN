@@ -47,6 +47,16 @@ public class CustomLan implements ModInitializer {
 
     private static final Text SERVER_STOPPED_TEXT = Text.translatable("multiplayer.disconnect.server_shutdown");
 
+    public static String processMotd(MinecraftServer server, String rawMotd) {
+        HashMap<String, String> motdMap = new HashMap<>();
+        motdMap.put("username", server.getHostProfile().getName());
+        motdMap.put("world", server.getSaveProperties().getLevelName());
+        StringSubstitutor motdSubstitutor = new StringSubstitutor(motdMap);
+        return motdSubstitutor.replace(rawMotd)
+                // Replace unescaped ampersands with section signs.
+                .replaceAll("((?:[^&]|^)(?:&&)*)&(?!&)", "$1§").replace("&&", "&");
+    }
+
     public static void startOrSaveLan(MinecraftServer server, GameMode gameMode,
             boolean onlineMode, boolean pvpEnabled, int port, int maxPlayers, String rawMotd,
             Consumer<String> onStarted, Consumer<String> onSaved, Runnable onFailed, IntConsumer onPortChangeFailed) {
@@ -58,13 +68,7 @@ public class CustomLan implements ModInitializer {
         ((PlayerManagerAccessor) playerManager).setMaxPlayers(maxPlayers);
 
         String oldMotd = server.getServerMotd();
-        HashMap<String, String> motdMap = new HashMap<>();
-        motdMap.put("username", server.getHostProfile().getName());
-        motdMap.put("world", server.getSaveProperties().getLevelName());
-        StringSubstitutor motdSubstitutor = new StringSubstitutor(motdMap);
-        String motd = motdSubstitutor.replace(rawMotd)
-                // Replace unescaped ampersands with section signs.
-                .replaceAll("((?:[^&]|^)(?:&&)*)&(?!&)", "$1§").replace("&&", "&");
+        String motd = processMotd(server, rawMotd);
         ((HasRawMotd) server).setRawMotd(rawMotd);
         server.setMotd(motd);
         // Metadata doesn't get updated automatically.
