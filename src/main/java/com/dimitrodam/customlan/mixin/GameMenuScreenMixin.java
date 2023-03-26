@@ -28,7 +28,7 @@ public class GameMenuScreenMixin extends Screen {
 
         boolean isHost = this.client.isIntegratedServerRunning();
         if (isHost && server.isRemote()) { // Already opened to LAN
-            ButtonWidget playerReportingButton = (ButtonWidget) gridWidget.children().get(6);
+            ButtonWidget playerReportingButton = (ButtonWidget) ((GridWidgetAccessor) gridWidget).getChildren().get(6);
             playerReportingButton.setMessage(EDIT_LAN_TEXT);
             ((ButtonWidgetAccessor) playerReportingButton)
                     .setOnPress(button -> this.client.setScreen(new OpenToLanScreen(this)));

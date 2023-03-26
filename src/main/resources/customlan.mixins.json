@@ -16,6 +16,7 @@
     "WhitelistCommandMixin",
     "IntegratedServerAccessor",
     "ButtonWidgetAccessor",
+    "GridWidgetAccessor",
     "GameMenuScreenMixin",
     "OpenToLanScreenMixin"
   ],

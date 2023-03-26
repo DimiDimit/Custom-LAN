@@ -72,7 +72,7 @@ public class CustomLan implements ModInitializer {
         ((HasRawMotd) server).setRawMotd(rawMotd);
         server.setMotd(motd);
         // Metadata doesn't get updated automatically.
-        server.getServerMetadata().setDescription(Text.literal(motd));
+        server.forcePlayerSampleUpdate();
 
         if (server.isRemote()) { // Already opened to LAN
             int oldPort = server.getServerPort();

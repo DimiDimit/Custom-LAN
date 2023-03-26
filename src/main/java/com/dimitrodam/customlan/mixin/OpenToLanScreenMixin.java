@@ -255,7 +255,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
                         }));
 
         // Update the Port field and re-add it for consistent Tab order.
-        this.portField.setPos(this.width / 2 - 154, this.height - 92);
+        this.portField.setPosition(this.width / 2 - 154, this.height - 92);
         this.portField.setWidth(148);
         this.portField.setText(this.rawPort != -1 ? Integer.toString(this.port) : "");
         this.remove(this.portField);
@@ -358,7 +358,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         return 88;
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredText(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredText(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V", ordinal = 1)))
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredTextWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredTextWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V", ordinal = 1)))
     private void removeOtherPlayersAndPortText(MatrixStack matrices, TextRenderer textRenderer, Text text,
             int centerX, int y, int color) {
     }
