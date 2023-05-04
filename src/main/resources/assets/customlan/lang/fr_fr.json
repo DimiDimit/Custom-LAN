@@ -25,5 +25,5 @@
   "lanServer.maxPlayers": "Nombre maximal de joueurs",
   "lanServer.maxPlayers.invalid": "Nombre de joueurs non valide.\nVeuillez entrer un nombre supérieur à %s.",
   "lanServer.motd": "MOTD",
-  "lanServer.motd.description": "Vous pouvez utiliser des esperluettes (&&) au lieu des symboles de section pour entrer des codes de mise en forme (utilisez deux esperluettes à la suite pour obtenir une esperluette réelle).\nLes variables suivantes seront développées :\n{username} - le nom d'utilisateur de l'hôte (${username})\n{world} - le nom du monde (${world})"
+  "lanServer.motd.description": "Vous pouvez utiliser des esperluettes (&&) au lieu des symboles de section pour entrer des codes de mise en forme (utilisez deux esperluettes à la suite pour obtenir une esperluette réelle).\nLes variables suivantes seront développées :\n$${username} - le nom d'utilisateur de l'hôte (${username})\n$${world} - le nom du monde (${world})"
 }
