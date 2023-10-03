@@ -14,6 +14,10 @@ public class CustomLanState extends PersistentState {
     private LanSettings lanSettings;
     private boolean whitelistEnabled;
 
+    public static PersistentState.Type<CustomLanState> getPersistentStateType() {
+        return new PersistentState.Type<CustomLanState>(CustomLanState::new, CustomLanState::fromNbt, null);
+    }
+
     private CustomLanState(@Nullable LanSettings lanSettings, boolean whitelistEnabled) {
         this.lanSettings = lanSettings;
         this.whitelistEnabled = whitelistEnabled;

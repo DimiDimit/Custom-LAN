@@ -104,7 +104,7 @@ public class PublishCommandMixin {
                                         }
                                         CustomLanState customLanState = server.getOverworld()
                                                         .getPersistentStateManager()
-                                                        .getOrCreate(CustomLanState::fromNbt, CustomLanState::new,
+                                                        .getOrCreate(CustomLanState.getPersistentStateType(),
                                                                         CustomLanState.CUSTOM_LAN_KEY);
                                         if (customLanState.getLanSettings() != null) {
                                                 return customLanState.getLanSettings();
@@ -118,8 +118,8 @@ public class PublishCommandMixin {
                                                                 context -> context.getSource().getServer()
                                                                                 .getOverworld()
                                                                                 .getPersistentStateManager()
-                                                                                .getOrCreate(CustomLanState::fromNbt,
-                                                                                                CustomLanState::new,
+                                                                                .getOrCreate(CustomLanState
+                                                                                                .getPersistentStateType(),
                                                                                                 CustomLanState.CUSTOM_LAN_KEY)
                                                                                 .getLanSettings()),
                                                 executeCommand, arguments.iterator()))

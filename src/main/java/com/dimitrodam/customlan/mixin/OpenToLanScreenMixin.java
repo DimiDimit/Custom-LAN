@@ -154,8 +154,8 @@ public abstract class OpenToLanScreenMixin extends Screen {
         // Initialization cannot be done in the constructor because
         // this.client wouldn't have been initialized yet.
         if (!this.initialized) {
-            this.customLanState = server.getOverworld().getPersistentStateManager().getOrCreate(
-                    CustomLanState::fromNbt, CustomLanState::new, CustomLanState.CUSTOM_LAN_KEY);
+            this.customLanState = server.getOverworld().getPersistentStateManager()
+                    .getOrCreate(CustomLanState.getPersistentStateType(), CustomLanState.CUSTOM_LAN_KEY);
 
             if (server.isRemote()) {
                 this.gameMode = server.getDefaultGameMode();
@@ -332,12 +332,6 @@ public abstract class OpenToLanScreenMixin extends Screen {
                 0xA0A0A0);
         // MOTD field text
         context.drawTextWithShadow(this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66, 0xA0A0A0);
-    }
-
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void tick(CallbackInfo ci) {
-        this.maxPlayersField.tick();
-        this.motdField.tick();
     }
 
     @Redirect(method = "updatePort", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/NetworkUtils;isPortAvailable(I)Z"))
