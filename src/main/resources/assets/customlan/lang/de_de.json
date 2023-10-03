@@ -25,5 +25,5 @@
   "lanServer.maxPlayers": "Maximale Spieler",
   "lanServer.maxPlayers.invalid": "Keine gültige Anzahl von Spielern.\nBitte gebe eine Zahl größer als %s ein.",
   "lanServer.motd": "MOTD",
-  "lanServer.motd.description": "Du kannst das Und-Zeichen (&&) anstelle von Abschnittszeichen verwenden, um Formatierungscodes einzugeben (verwende zwei Und-Zeichen in einer Reihe, um ein echtes Und-Zeichen zu erhalten).\nDie folgenden Variablen werden erweitert:\n$${username} - der Benutzername des Hosts (${username})\n$$${world} - der Name der Welt (${world})"
+  "lanServer.motd.description": "Du kannst das Und-Zeichen (&&) anstelle von Abschnittszeichen verwenden, um Formatierungscodes einzugeben (verwende zwei Und-Zeichen in einer Reihe, um ein echtes Und-Zeichen zu erhalten).\nDie folgenden Variablen werden erweitert:\n$${username} - der Benutzername des Hosts (${username})\n$${world} - der Name der Welt (${world})"
 }
