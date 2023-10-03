@@ -21,6 +21,7 @@ import com.dimitrodam.customlan.LanSettings;
 
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -29,7 +30,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.NetworkUtils;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
@@ -154,8 +154,8 @@ public abstract class OpenToLanScreenMixin extends Screen {
         // Initialization cannot be done in the constructor because
         // this.client wouldn't have been initialized yet.
         if (!this.initialized) {
-            this.customLanState = server.getOverworld().getPersistentStateManager().getOrCreate(CustomLanState::fromNbt,
-                    CustomLanState::new, CustomLanState.CUSTOM_LAN_KEY);
+            this.customLanState = server.getOverworld().getPersistentStateManager().getOrCreate(
+                    CustomLanState::fromNbt, CustomLanState::new, CustomLanState.CUSTOM_LAN_KEY);
 
             if (server.isRemote()) {
                 this.gameMode = server.getDefaultGameMode();
@@ -314,24 +314,24 @@ public abstract class OpenToLanScreenMixin extends Screen {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void render(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         // Per-world settings text
-        drawTextWithShadow(matrices, this.textRenderer, PER_WORLD_TEXT, this.width / 2 - 155, 14, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, PER_WORLD_TEXT, this.width / 2 - 155, 14, 0xFFFFFF);
         // Global settings text
-        drawTextWithShadow(matrices, this.textRenderer, GLOBAL_TEXT, this.width / 2 - 155, 38, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, GLOBAL_TEXT, this.width / 2 - 155, 38, 0xFFFFFF);
         // System settings text
-        drawTextWithShadow(matrices, this.textRenderer, SYSTEM_TEXT, this.width / 2 - 155, 62, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, SYSTEM_TEXT, this.width / 2 - 155, 62, 0xFFFFFF);
 
         // Explanation text
-        this.explanationText.drawWithShadow(matrices, this.width / 2 - 154, 148, 9, 0xA0A0A0);
+        this.explanationText.drawWithShadow(context, this.width / 2 - 154, 148, 9, 0xA0A0A0);
 
         // Port field text
-        drawTextWithShadow(matrices, this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104, 0xA0A0A0);
+        context.drawTextWithShadow(this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104, 0xA0A0A0);
         // Max Players field text
-        drawTextWithShadow(matrices, this.textRenderer, MAX_PLAYERS_TEXT, this.width / 2 + 6, this.height - 104,
+        context.drawTextWithShadow(this.textRenderer, MAX_PLAYERS_TEXT, this.width / 2 + 6, this.height - 104,
                 0xA0A0A0);
         // MOTD field text
-        drawTextWithShadow(matrices, this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66, 0xA0A0A0);
+        context.drawTextWithShadow(this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66, 0xA0A0A0);
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
@@ -358,8 +358,8 @@ public abstract class OpenToLanScreenMixin extends Screen {
         return 88;
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredTextWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/OpenToLanScreen;drawCenteredTextWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V", ordinal = 1)))
-    private void removeOtherPlayersAndPortText(MatrixStack matrices, TextRenderer textRenderer, Text text,
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawCenteredTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawCenteredTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V", ordinal = 1)))
+    private void removeOtherPlayersAndPortText(DrawContext context, TextRenderer textRenderer, Text text,
             int centerX, int y, int color) {
     }
 

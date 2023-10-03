@@ -168,9 +168,10 @@ public class PublishCommandMixin {
                 try {
                         CustomLan.startOrSaveLan(source.getServer(), gameMode, onlineMode, pvpEnabled,
                                         port, maxPlayers, rawMotd,
-                                        motd -> source.sendFeedback(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
+                                        motd -> source.sendFeedback(() -> Text.translatable(
+                                                        PUBLISH_STARTED_CUSTOMLAN_TEXT,
                                                         Texts.bracketedCopyable(String.valueOf(port)), motd), true),
-                                        motd -> source.sendFeedback(Text.translatable(PUBLISH_SAVED_TEXT,
+                                        motd -> source.sendFeedback(() -> Text.translatable(PUBLISH_SAVED_TEXT,
                                                         Texts.bracketedCopyable(String.valueOf(port)), motd), true),
                                         () -> {
                                                 throw new RuntimeException(FAILED_EXCEPTION.create());
@@ -196,7 +197,7 @@ public class PublishCommandMixin {
 
                 CustomLan.stopLan(server);
 
-                source.sendFeedback(PUBLISH_STOPPED_TEXT, true);
+                source.sendFeedback(() -> PUBLISH_STOPPED_TEXT, true);
                 return Command.SINGLE_SUCCESS;
         }
 }
