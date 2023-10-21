@@ -36,7 +36,7 @@ Using the `/publish` command without specifying which saved settings to use (`pe
 Specifying the saved settings uses those particular settings or the system defaults if they haven't been saved, without checking any others, even if the world has been opened to LAN (e.g. if `perworld` is specified and no per-world settings are saved, the system defaults will be used even if there are saved global settings).
 The settings specified as arguments will override the saved settings or current values (e.g. `/publish perworld 12345 false` will use the per-world settings, except that the port will be `12345` and online mode will be disabled).
 
-The global settings are stored in `.minecraft/config/customlan.json`, while the per-world ones are stored in `data/customlan.dat` in the respective world's directory.
+The global settings are stored in `.minecraft/config/customlan.toml`, while the per-world ones are stored in `data/customlan.dat` in the respective world's directory.
 
 ## Explanation of `/op` and `/deop`
 `/op` and `/deop` work like in dedicated servers.
