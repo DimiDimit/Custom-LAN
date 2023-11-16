@@ -1,13 +1,46 @@
 {
-  "commands.publish.failed.port_change": "Невозможно сменить порт, всё ещё ожидается %s",
-  "commands.publish.saved": "Настройки локального сервера сохранены",
-  "commands.publish.stopped": "Локальный серер остановлен",
-  "menu.editLan": "Изменить LAN",
-  "lanServer.explanation": "Чтобы разрешить/запретить игроку (включая себя) доступ к выполнению команд, используйте /op или /deop.\nСовет: Вы можете использовать это даже без открытия локального сервера!",
+  "argument.gameMode.invalid": "Недопустимый или неизвестный режим игры '%s'",
+  "argument.tunnel.invalid": "Недопустимый или неизвестный туннель '%s'",
+
+  "commands.publish.started.customlan": "Локальный сервер размещён на порту %s с описанием: %s",
+  "commands.publish.started.customlan.tunnel": "Локальный сервер размещён на порту %s, туннелированном к %s с описанием: %s",
+  "commands.publish.failed.stop": "Не удаётся остановить локальный сервер",
+  "commands.publish.failed.not_started": "Локальный сервер не размещена",
+  "commands.publish.failed.port_change": "Невозможно сменить порт, всё ещё ожидается порт %s",
+  "commands.publish.failed.tunnel.ngrok": "Не удается запустить туннель ngrok",
+  "commands.publish.failed.tunnel.ngrok.stop": "Невозможно остановить туннель ngrok",
+  "commands.publish.failed.tunnel.ngrok.noAuthtoken": "Не указан токен аутентификации! Получите его из них из %s и добавьте его в конфигурацию.",
+  "commands.publish.saved": "Настройки размещения локального сервера сохранены с портом %s и описанием: %s",
+  "commands.publish.saved.tunnel": "Настройки размещения локального сервера сохранены с портом %s, туннелированном к %s с описанием: %s",
+  "commands.publish.stopped": "Локальный сервер остановлен",
+  "commands.ban.failed.host": "Ничего не изменилось. Вы не можете заблокировать хоста сервера",
+  "commands.banip.failed.host": "Ничего не изменилось. Вы не можете заблокировать IP хоста сервера",
+  "commands.whitelist.add.failed.host": "Вы не можете внести хост сервера в белый список",
+
+  "menu.editLan": "Редактировать локальную сеть",
+
+  "lanServer.explanation": "Чтобы разрешить/запретить игроку (включая вас) использовать команды, используйте команды /op и /deop соответственно.\nПодсказка: Это работает и без размещения локального сервера!\nВы также можете блокировать игроков и вносить их в белый список, используя соответствующие команды.",
+  "lanServer.perWorld": "По миру",
+  "lanServer.global": "Глобальные",
+  "lanServer.system": "Системные",
+  "lanServer.load": "Загрузить",
+  "lanServer.load.system": "Загрузить системные настройки",
+  "lanServer.clear": "Очистить",
+  "lanServer.clear.perWorld.question": "Вы уверены, что хотите удалить сохранённые настройки для этого мира?",
+  "lanServer.clear.global.question": "Вы уверены, что хотите очистить глобальные настройки?",
   "lanServer.save": "Сохранить",
   "lanServer.stop": "Остановить",
-  "lanServer.onlineMode": "Проверка лицензии",
+  "lanServer.onlineMode": "Только с лицензией",
   "lanServer.pvpEnabled": "PvP",
+  "lanServer.tunnel": "Туннель",
   "lanServer.maxPlayers": "Лимит игроков",
-  "lanServer.motd": "Описание"
+  "lanServer.maxPlayers.invalid": "Недопустимое количество игроков.\nПожалуйста, введите число, большее, чем %s.",
+  "lanServer.motd": "Описание локального сервера",
+  "lanServer.motd.description": "Вы можете использовать амперсанды (&&) вместо знаков раздела для ввода кодов форматирования (используйте два амперсанда подряд, чтобы получить фактический амперсанд).\nБудут расширены следующие переменные:\n$${username} — имя пользователя хоста (${username})\n$${world} — название игрового мира (${world})",
+
+  "customlan.tunnel.none": "Никакой",
+  "customlan.tunnel.ngrok": "ngrok",
+
+  "text.autoconfig.customlan.title": "Параметры пользовательской локальной сети",
+  "text.autoconfig.customlan.option.ngrokAuthtoken": "Токен аутентификации туннеля ngrok"
 }
