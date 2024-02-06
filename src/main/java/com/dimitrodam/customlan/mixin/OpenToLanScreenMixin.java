@@ -29,7 +29,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.NetworkUtils;
+import net.minecraft.util.NetworkUtils;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
@@ -345,7 +345,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         context.drawTextWithShadow(this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66, 0xA0A0A0);
     }
 
-    @Redirect(method = "updatePort", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/NetworkUtils;isPortAvailable(I)Z"))
+    @Redirect(method = "updatePort", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/NetworkUtils;isPortAvailable(I)Z"))
     private boolean allowKeepingPort(int port) {
         return NetworkUtils.isPortAvailable(port) || port == this.client.getServer().getServerPort();
     }
