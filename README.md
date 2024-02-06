@@ -2,7 +2,7 @@
 ![Screenshot of Custom LAN](docs/open_to_lan_screen.png)
 A **Fabric** mod that allows you to:
 * Customize more of your integrated server (Online Mode, PvP, Max Players, MOTD)
-* Use ampersands (`&`) for [formatting codes](https://minecraft.fandom.com/wiki/Formatting_codes) instead of section signs (`§`) and variables (e.g. `${username}`, `${world}`) in the MOTD
+* Use ampersands (`&`) for [formatting codes](https://minecraft.wiki/w/Formatting_codes) instead of section signs (`§`) and variables (e.g. `${username}`, `${world}`) in the MOTD
 * Change the settings mid-game (including the port) and stop the server without quitting the world
 * Save the settings globally or per-world (they are loaded automatically with per-world settings taking priority over the global ones, which take priority over the system defaults)
 * Change who can use cheats individually using the `/op` and `/deop` commands and cheat in singleplayer without opening to LAN (replaces the Allow Cheats button)
@@ -21,7 +21,7 @@ It has been backported to all Minecraft versions supported by Fabric (except the
 I'm **not** planning on porting it to **Forge** myself *for now* ([this](https://forums.minecraftforge.net/topic/70592-113how-to-use-mixin-for-forge-modding/?tab=comments#comment-341587), [this](https://forums.minecraftforge.net/topic/97430-forgemixinfabric-question/), [that](https://web.archive.org/web/20210118022002/https://gist.github.com/jellysquid3/8b68b81a5e48462f8690284a0a3c89a1) and [that](https://gist.github.com/The-Fireplace/d092f25e892a46902ecdec68dee2b938) is why), but you're more than welcome to send me a pull request.
 
 ## Explanation of MOTD formatting codes and variables
-In the MOTD, ampersands (`&`) are replaced with section signs (`§`) to allow you to enter [formatting codes](https://minecraft.fandom.com/wiki/Formatting_codes) (e.g. `&9Hello, &a&lworld!` makes `Hello,` blue and `world!` green and bold).
+In the MOTD, ampersands (`&`) are replaced with section signs (`§`) to allow you to enter [formatting codes](https://minecraft.wiki/w/Formatting_codes) (e.g. `&9Hello, &a&lworld!` makes `Hello,` blue and `world!` green and bold).
 You can use two ampersands in a row (`&&`) to get an actual ampersand (`&`).
 
 The following variables will be expanded using [Apache Commons Text's `StringSubstitutor`](https://commons.apache.org/proper/commons-text/apidocs/org/apache/commons/text/StringSubstitutor.html):
