@@ -1,14 +1,24 @@
 {
   "argument.gameMode.invalid": "Invalid or unknown game mode '%s'",
+  "argument.tunnel.invalid": "Invalid or unknown tunnel '%s'",
+
   "commands.publish.started.customlan": "Local game hosted on port %s with MOTD: %s",
+  "commands.publish.started.customlan.tunnel": "Local game hosted on port %s tunneled to %s with MOTD: %s",
+  "commands.publish.failed.stop": "Unable to stop local game",
   "commands.publish.failed.not_started": "Local game isn't hosted",
   "commands.publish.failed.port_change": "Unable to change port, still listening on port %s",
+  "commands.publish.failed.tunnel.ngrok": "Unable to start ngrok tunnel",
+  "commands.publish.failed.tunnel.ngrok.stop": "Unable to stop ngrok tunnel",
+  "commands.publish.failed.tunnel.ngrok.noAuthtoken": "No Authtoken has been specified! Get one from %s and add it to the config.",
   "commands.publish.saved": "Local game hosting settings saved with port %s and MOTD: %s",
+  "commands.publish.saved.tunnel": "Local game hosting settings saved with port %s tunneled to %s and MOTD: %s",
   "commands.publish.stopped": "Stopped hosting local game",
   "commands.ban.failed.host": "Nothing changed. You cannot ban the server's host",
   "commands.banip.failed.host": "Nothing changed. You cannot ban the IP of the server's host",
   "commands.whitelist.add.failed.host": "You cannot whitelist the server's host",
+
   "menu.editLan": "Edit LAN",
+
   "lanServer.explanation": "To allow/disallow a player (including yourself) to use commands, use the /op and /deop commands.\nTip: This works without opening to LAN as well!\nYou can also ban and whitelist players using the respective commands.",
   "lanServer.perWorld": "Per-world",
   "lanServer.global": "Global",
@@ -22,8 +32,15 @@
   "lanServer.stop": "Stop",
   "lanServer.onlineMode": "Online Mode",
   "lanServer.pvpEnabled": "PvP",
+  "lanServer.tunnel": "Tunnel",
   "lanServer.maxPlayers": "Max Players",
   "lanServer.maxPlayers.invalid": "Not a valid number of players.\nPlease enter a number greater than %s.",
   "lanServer.motd": "MOTD",
-  "lanServer.motd.description": "You can use ampersands (&&) instead of section signs to enter formatting codes (use two ampersands in a row to get an actual ampersand).\nThe following variables will be expanded:\n$${username} - the host's username (${username})\n$${world} - the world's name (${world})"
+  "lanServer.motd.description": "You can use ampersands (&&) instead of section signs to enter formatting codes (use two ampersands in a row to get an actual ampersand).\nThe following variables will be expanded:\n$${username} - the host's username (${username})\n$${world} - the world's name (${world})",
+
+  "customlan.tunnel.none": "None",
+  "customlan.tunnel.ngrok": "ngrok",
+
+  "text.autoconfig.customlan.title": "Custom LAN Options",
+  "text.autoconfig.customlan.option.ngrokAuthtoken": "ngrok Authtoken"
 }

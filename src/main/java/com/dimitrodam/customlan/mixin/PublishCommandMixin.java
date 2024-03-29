@@ -2,6 +2,8 @@ package com.dimitrodam.customlan.mixin;
 
 import static com.dimitrodam.customlan.command.argument.GameModeArgumentType.gameMode;
 import static com.dimitrodam.customlan.command.argument.GameModeArgumentType.getGameMode;
+import static com.dimitrodam.customlan.command.argument.TunnelArgumentType.getTunnel;
+import static com.dimitrodam.customlan.command.argument.TunnelArgumentType.tunnel;
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.BoolArgumentType.getBool;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
@@ -26,11 +28,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.dimitrodam.customlan.CustomLan;
-import com.dimitrodam.customlan.CustomLanConfig;
+import com.dimitrodam.customlan.CustomLanServerValues;
 import com.dimitrodam.customlan.CustomLanState;
-import com.dimitrodam.customlan.HasRawMotd;
 import com.dimitrodam.customlan.LanSettings;
 import com.dimitrodam.customlan.PublishCommandArgumentValues;
+import com.dimitrodam.customlan.TunnelType;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -43,7 +45,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.PublishCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import net.minecraft.world.GameMode;
 
 @Mixin(PublishCommand.class)
@@ -54,9 +55,8 @@ public class PublishCommandMixin {
 
         private static final SimpleCommandExceptionType NOT_STARTED_EXCEPTION = new SimpleCommandExceptionType(
                         Text.translatable("commands.publish.failed.not_started"));
-        private static final String PUBLISH_STARTED_CUSTOMLAN_TEXT = "commands.publish.started.customlan";
-        private static final String PUBLISH_PORT_CHANGE_FAILED_TEXT = "commands.publish.failed.port_change";
-        private static final String PUBLISH_SAVED_TEXT = "commands.publish.saved";
+        private static final SimpleCommandExceptionType STOP_FAILED_EXCEPTION = new SimpleCommandExceptionType(
+                        Text.translatable("commands.publish.failed.stop"));
         private static final Text PUBLISH_STOPPED_TEXT = Text.translatable("commands.publish.stopped");
 
         @Inject(method = "register", at = @At("HEAD"), cancellable = true)
@@ -81,26 +81,31 @@ public class PublishCommandMixin {
                                                                 argumentValues -> argumentValues.getGameMode = context -> getGameMode(
                                                                                 context,
                                                                                 "defaultGameMode")),
+                                                Pair.of(argument("tunnel", tunnel()),
+                                                                argumentValues -> argumentValues.getTunnel = context -> getTunnel(
+                                                                                context, "tunnel")),
                                                 Pair.of(argument("motd", greedyString()),
                                                                 argumentValues -> argumentValues.getMotd = context -> getString(
                                                                                 context, "motd")));
 
                 Function<PublishCommandArgumentValues, Command<ServerCommandSource>> executeCommand = argumentValues -> context -> execute(
                                 context.getSource(), argumentValues.getOnlineMode.apply(context),
-                                argumentValues.getPvpEnabled.apply(context), argumentValues.getPort.apply(context),
-                                argumentValues.getMaxPlayers.apply(context), argumentValues.getGameMode.apply(context),
-                                argumentValues.getMotd.apply(context));
+                                argumentValues.getPvpEnabled.apply(context), argumentValues.getTunnel.apply(context),
+                                argumentValues.getPort.apply(context), argumentValues.getMaxPlayers.apply(context),
+                                argumentValues.getGameMode.apply(context), argumentValues.getMotd.apply(context));
 
                 LiteralArgumentBuilder<ServerCommandSource> command = processThisAndArguments(literal("publish")
                                 .requires(source -> source.hasPermissionLevel(4)),
                                 new PublishCommandArgumentValues(context -> {
                                         MinecraftServer server = context.getSource().getServer();
                                         if (server.isRemote()) {
+                                                CustomLanServerValues serverValues = (CustomLanServerValues) server;
+
                                                 return new LanSettings(server.getDefaultGameMode(),
                                                                 server.isOnlineMode(),
-                                                                server.isPvpEnabled(), server.getServerPort(),
-                                                                server.getMaxPlayerCount(),
-                                                                ((HasRawMotd) server).getRawMotd());
+                                                                server.isPvpEnabled(), serverValues.getTunnelType(),
+                                                                server.getServerPort(),
+                                                                server.getMaxPlayerCount(), serverValues.getRawMotd());
                                         }
                                         CustomLanState customLanState = server.getOverworld()
                                                         .getPersistentStateManager()
@@ -108,8 +113,8 @@ public class PublishCommandMixin {
                                                                         CustomLanState.CUSTOM_LAN_KEY);
                                         if (customLanState.getLanSettings() != null) {
                                                 return customLanState.getLanSettings();
-                                        } else if (CustomLanConfig.INSTANCE.getLanSettings() != null) {
-                                                return CustomLanConfig.INSTANCE.getLanSettings();
+                                        } else if (CustomLan.CONFIG.getConfig().lanSettings != null) {
+                                                return CustomLan.CONFIG.getConfig().lanSettings;
                                         }
                                         return null;
                                 }), executeCommand, arguments.iterator())
@@ -125,7 +130,7 @@ public class PublishCommandMixin {
                                                 executeCommand, arguments.iterator()))
                                 .then(processThisAndArguments(literal("global"),
                                                 new PublishCommandArgumentValues(
-                                                                context -> CustomLanConfig.INSTANCE.getLanSettings()),
+                                                                context -> CustomLan.CONFIG.getConfig().lanSettings),
                                                 executeCommand, arguments.iterator()))
                                 .then(processThisAndArguments(literal("system"),
                                                 new PublishCommandArgumentValues(
@@ -163,21 +168,17 @@ public class PublishCommandMixin {
         }
 
         private static int execute(ServerCommandSource source, boolean onlineMode, boolean pvpEnabled,
+                        TunnelType tunnel,
                         int rawPort, int maxPlayers, GameMode gameMode, String rawMotd) throws CommandSyntaxException {
                 int port = rawPort != -1 ? rawPort : NetworkUtils.findLocalPort();
                 try {
-                        CustomLan.startOrSaveLan(source.getServer(), gameMode, onlineMode, pvpEnabled,
+                        CustomLan.startOrSaveLan(source.getServer(), gameMode, onlineMode, pvpEnabled, tunnel,
                                         port, maxPlayers, rawMotd,
-                                        motd -> source.sendFeedback(() -> Text.translatable(
-                                                        PUBLISH_STARTED_CUSTOMLAN_TEXT,
-                                                        Texts.bracketedCopyable(String.valueOf(port)), motd), true),
-                                        motd -> source.sendFeedback(() -> Text.translatable(PUBLISH_SAVED_TEXT,
-                                                        Texts.bracketedCopyable(String.valueOf(port)), motd), true),
+                                        text -> source.sendFeedback(() -> text, true),
                                         () -> {
                                                 throw new RuntimeException(FAILED_EXCEPTION.create());
                                         },
-                                        oldPort -> source.sendError(Text.translatable(PUBLISH_PORT_CHANGE_FAILED_TEXT,
-                                                        Texts.bracketedCopyable(String.valueOf(oldPort)))));
+                                        text -> source.sendError(text));
                 } catch (RuntimeException e) {
                         if (e.getCause() instanceof CommandSyntaxException cause) {
                                 throw cause;
@@ -195,9 +196,13 @@ public class PublishCommandMixin {
                         throw NOT_STARTED_EXCEPTION.create();
                 }
 
-                CustomLan.stopLan(server);
+                CustomLan.stopLan(server,
+                                () -> source.sendFeedback(() -> PUBLISH_STOPPED_TEXT, true),
+                                () -> {
+                                        throw new RuntimeException(STOP_FAILED_EXCEPTION.create());
+                                },
+                                text -> source.sendError(text));
 
-                source.sendFeedback(() -> PUBLISH_STOPPED_TEXT, true);
                 return Command.SINGLE_SUCCESS;
         }
 }

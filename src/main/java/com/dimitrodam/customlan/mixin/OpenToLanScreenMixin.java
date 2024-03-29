@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.dimitrodam.customlan.CustomLan;
-import com.dimitrodam.customlan.CustomLanConfig;
+import com.dimitrodam.customlan.CustomLanServerValues;
 import com.dimitrodam.customlan.CustomLanState;
-import com.dimitrodam.customlan.HasRawMotd;
 import com.dimitrodam.customlan.LanSettings;
+import com.dimitrodam.customlan.TunnelType;
 
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.font.TextRenderer;
@@ -33,15 +33,13 @@ import net.minecraft.client.util.NetworkUtils;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
 
 @Mixin(OpenToLanScreen.class)
 public abstract class OpenToLanScreenMixin extends Screen {
-    private static final String PUBLISH_STARTED_CUSTOMLAN_TEXT = "commands.publish.started.customlan";
     private static final Text PUBLISH_FAILED_TEXT = Text.translatable("commands.publish.failed");
-    private static final String PUBLISH_PORT_CHANGE_FAILED_TEXT = "commands.publish.failed.port_change";
-    private static final String PUBLISH_SAVED_TEXT = "commands.publish.saved";
+    private static final Text PUBLISH_STOP_FAILED_TEXT = Text.translatable("commands.publish.failed.stop");
     private static final Text PUBLISH_STOPPED_TEXT = Text.translatable("commands.publish.stopped");
     private static final Text EXPLANATION_TEXT = Text.translatable("lanServer.explanation");
     private static final Text PER_WORLD_TEXT = Text.translatable("lanServer.perWorld");
@@ -57,6 +55,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private static final Text STOP_TEXT = Text.translatable("lanServer.stop");
     private static final Text ONLINE_MODE_TEXT = Text.translatable("lanServer.onlineMode");
     private static final Text PVP_ENABLED_TEXT = Text.translatable("lanServer.pvpEnabled");
+    private static final Text TUNNEL_TEXT = Text.translatable("lanServer.tunnel");
     private static final Text MAX_PLAYERS_TEXT = Text.translatable("lanServer.maxPlayers");
     private static final Text INVALID_MAX_PLAYERS_TEXT = Text.translatable("lanServer.maxPlayers.invalid", 0);
     private static final Text MOTD_TEXT = Text.translatable("lanServer.motd");
@@ -80,6 +79,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private MultilineText explanationText = MultilineText.EMPTY;
     private CyclingButtonWidget<Boolean> onlineModeButton;
     private CyclingButtonWidget<Boolean> pvpEnabledButton;
+    private CyclingButtonWidget<TunnelType> tunnelButton;
     private TextFieldWidget maxPlayersField;
     private TextFieldWidget motdField;
     private ButtonWidget startSaveButton;
@@ -90,6 +90,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
 
     private boolean onlineMode;
     private boolean pvpEnabled;
+    private TunnelType tunnel;
     private int rawPort;
     private boolean portValid = true;
     private int maxPlayers;
@@ -116,6 +117,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         this.gameMode = lanSettings.gameMode;
         this.onlineMode = lanSettings.onlineMode;
         this.pvpEnabled = lanSettings.pvpEnabled;
+        this.tunnel = lanSettings.tunnel;
         this.rawPort = lanSettings.port;
         this.port = lanSettings.port != -1 ? lanSettings.port : NetworkUtils.findLocalPort();
         this.maxPlayers = lanSettings.maxPlayers;
@@ -127,13 +129,14 @@ public abstract class OpenToLanScreenMixin extends Screen {
         this.gameModeButton.setValue(this.gameMode);
         this.onlineModeButton.setValue(this.onlineMode);
         this.pvpEnabledButton.setValue(this.pvpEnabled);
+        this.tunnelButton.setValue(this.tunnel);
         this.portField.setText(this.rawPort != -1 ? Integer.toString(this.port) : "");
         this.maxPlayersField.setText(Integer.toString(this.maxPlayers));
         this.motdField.setText(this.rawMotd);
     }
 
     private LanSettings saveLanSettings() {
-        return new LanSettings(this.gameMode, this.onlineMode, this.pvpEnabled,
+        return new LanSettings(this.gameMode, this.onlineMode, this.pvpEnabled, this.tunnel,
                 this.portField.getText().isBlank() ? -1 : this.port, this.maxPlayers, this.rawMotd);
     }
 
@@ -142,7 +145,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         this.perWorldLoadButton.active = savedPerWorld;
         this.perWorldClearButton.active = savedPerWorld;
 
-        boolean savedGlobal = CustomLanConfig.INSTANCE.getLanSettings() != null;
+        boolean savedGlobal = CustomLan.CONFIG.getConfig().lanSettings != null;
         this.globalLoadButton.active = savedGlobal;
         this.globalClearButton.active = savedGlobal;
     }
@@ -158,17 +161,20 @@ public abstract class OpenToLanScreenMixin extends Screen {
                     CustomLanState::fromNbt, CustomLanState::new, CustomLanState.CUSTOM_LAN_KEY);
 
             if (server.isRemote()) {
+                CustomLanServerValues serverValues = (CustomLanServerValues) server;
+
                 this.gameMode = server.getDefaultGameMode();
                 this.onlineMode = server.isOnlineMode();
                 this.pvpEnabled = server.isPvpEnabled();
+                this.tunnel = serverValues.getTunnelType();
                 this.port = server.getServerPort();
                 this.rawPort = this.port;
                 this.maxPlayers = server.getMaxPlayerCount();
-                this.rawMotd = ((HasRawMotd) server).getRawMotd();
+                this.rawMotd = serverValues.getRawMotd();
             } else if (this.customLanState.getLanSettings() != null) {
                 this.loadLanSettingsValues(this.customLanState.getLanSettings());
-            } else if (CustomLanConfig.INSTANCE.getLanSettings() != null) {
-                this.loadLanSettingsValues(CustomLanConfig.INSTANCE.getLanSettings());
+            } else if (CustomLan.CONFIG.getConfig().lanSettings != null) {
+                this.loadLanSettingsValues(CustomLan.CONFIG.getConfig().lanSettings);
             } else {
                 this.loadLanSettingsValues(LanSettings.systemDefaults(server));
             }
@@ -200,19 +206,18 @@ public abstract class OpenToLanScreenMixin extends Screen {
         // Global Save button
         this.addDrawableChild(ButtonWidget.builder(SAVE_TEXT,
                 button -> {
-                    CustomLanConfig.INSTANCE.setLanSettings(this.saveLanSettings());
+                    CustomLan.CONFIG.getConfig().setLanSettings(this.saveLanSettings());
                     this.updateSettingsButtons();
                 }).dimensions(this.width / 2 - 77, 32, 74, 20).build());
         // Global Load button
         this.globalLoadButton = this.addDrawableChild(ButtonWidget.builder(LOAD_TEXT,
-                // Reload the config before loading the settings to allow for hot swapping.
-                button -> this.loadLanSettings(CustomLanConfig.reload().getLanSettings()))
+                button -> this.loadLanSettings(CustomLan.CONFIG.getConfig().lanSettings))
                 .dimensions(this.width / 2 + 2, 32, 74, 20).build());
         // Global Clear button
         this.globalClearButton = this.addDrawableChild(ButtonWidget.builder(CLEAR_TEXT,
                 button -> this.client.setScreen(new ConfirmScreen(confirmed -> {
                     if (confirmed) {
-                        CustomLanConfig.INSTANCE.setLanSettings(null);
+                        CustomLan.CONFIG.getConfig().setLanSettings(null);
                         this.updateSettingsButtons();
                     }
                     this.client.setScreen(this);
@@ -252,6 +257,12 @@ public abstract class OpenToLanScreenMixin extends Screen {
                 CyclingButtonWidget.onOffBuilder(this.pvpEnabled).build(this.width / 2 + 5, 124, 150, 20,
                         PVP_ENABLED_TEXT, (button, pvpEnabled) -> {
                             this.pvpEnabled = pvpEnabled;
+                        }));
+        // Tunnel button
+        this.tunnelButton = this.addDrawableChild(
+                CyclingButtonWidget.builder(TunnelType::getTranslatableName).values(TunnelType.values())
+                        .initially(tunnel).build(this.width / 2 - 155, 148, 310, 20, TUNNEL_TEXT, (button, tunnel) -> {
+                            this.tunnel = tunnel;
                         }));
 
         // Update the Port field and re-add it for consistent Tab order.
@@ -323,7 +334,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         context.drawTextWithShadow(this.textRenderer, SYSTEM_TEXT, this.width / 2 - 155, 62, 0xFFFFFF);
 
         // Explanation text
-        this.explanationText.drawWithShadow(context, this.width / 2 - 154, 148, 9, 0xA0A0A0);
+        this.explanationText.drawWithShadow(context, this.width / 2 - 154, 172, 9, 0xA0A0A0);
 
         // Port field text
         context.drawTextWithShadow(this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104, 0xA0A0A0);
@@ -366,25 +377,22 @@ public abstract class OpenToLanScreenMixin extends Screen {
     private void startOrSave() {
         this.client.setScreen(null);
 
-        CustomLan.startOrSaveLan(this.client.getServer(), this.gameMode,
-                this.onlineMode, this.pvpEnabled, this.port, this.maxPlayers, this.rawMotd,
-                motd -> this.client.inGameHud.getChatHud()
-                        .addMessage(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
-                                Texts.bracketedCopyable(String.valueOf(this.port)), motd)),
-                motd -> this.client.inGameHud.getChatHud()
-                        .addMessage(Text.translatable(PUBLISH_SAVED_TEXT,
-                                Texts.bracketedCopyable(String.valueOf(this.port)), motd)),
-                () -> this.client.inGameHud.getChatHud().addMessage(PUBLISH_FAILED_TEXT),
-                oldPort -> this.client.inGameHud.getChatHud().addMessage(Text.translatable(
-                        PUBLISH_PORT_CHANGE_FAILED_TEXT, Texts.bracketedCopyable(String.valueOf(oldPort)))));
+        CustomLan.startOrSaveLan(this.client.getServer(), this.gameMode, this.onlineMode, this.pvpEnabled, this.tunnel,
+                this.port, this.maxPlayers, this.rawMotd,
+                text -> this.client.inGameHud.getChatHud().addMessage(text),
+                () -> this.client.inGameHud.getChatHud()
+                        .addMessage(PUBLISH_FAILED_TEXT.copy().formatted(Formatting.RED)),
+                text -> this.client.inGameHud.getChatHud().addMessage(text.copy().formatted(Formatting.RED)));
     }
 
     private void stop() {
         this.client.setScreen(null);
 
-        CustomLan.stopLan(this.client.getServer());
-
-        this.client.inGameHud.getChatHud().addMessage(PUBLISH_STOPPED_TEXT);
+        CustomLan.stopLan(this.client.getServer(),
+                () -> this.client.inGameHud.getChatHud().addMessage(PUBLISH_STOPPED_TEXT),
+                () -> this.client.inGameHud.getChatHud()
+                        .addMessage(PUBLISH_STOP_FAILED_TEXT.copy().formatted(Formatting.RED)),
+                text -> this.client.inGameHud.getChatHud().addMessage(text.copy().formatted(Formatting.RED)));
     }
 
     /**

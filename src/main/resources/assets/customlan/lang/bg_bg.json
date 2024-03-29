@@ -1,14 +1,24 @@
 {
   "argument.gameMode.invalid": "Невалиден или неизвестен режим на игра \"%s\"",
+  "argument.tunnel.invalid": "Невалиден или неизвестен тунел \"%s\"",
+
   "commands.publish.started.customlan": "Локална игра хоствана на порт %s със съобщение на деня: %s",
+  "commands.publish.started.customlan.tunnel": "Локална игра хоствана на порт %s с тунел до %s и съобщение на деня: %s",
+  "commands.publish.failed.stop": "Неуспешен опит за спиране на локалната игра",
   "commands.publish.failed.not_started": "Локалната игра не е хоствана",
   "commands.publish.failed.port_change": "Неуспешен опит за смяна на порт, още се използва порт %s",
+  "commands.publish.failed.tunnel.ngrok": "Неуспешен опит за стартиране на ngrok тунел",
+  "commands.publish.failed.tunnel.ngrok.stop": "Неуспешен опит за спиране на ngrok тунел",
+  "commands.publish.failed.tunnel.ngrok.noAuthtoken": "Не е посочен Authtoken! Вземете такъв от %s и го добавете към конфигурацията.",
   "commands.publish.saved": "Настройките за хостване на локална игра са записани с порт %s и съобщение на деня: %s",
+  "commands.publish.saved.tunnel": "Настройките за хостване на локална игра са записани с порт %s с тунел до %s и съобщение на деня: %s",
   "commands.publish.stopped": "Хостването на локална игра е спряно",
   "commands.ban.failed.host": "Нищо не се промени. Не можете да блокирате собственика на сървъра",
   "commands.banip.failed.host": "Нищо не се промени. Не можете да блокирате IP адреса на собственика на сървъра",
   "commands.whitelist.add.failed.host": "Не можете да добавите собственика на съвръра към белия списък",
+
   "menu.editLan": "Редактиране на LAN",
+
   "lanServer.explanation": "За да разрешите или забраните на играч (включително и Вас самите) да използва команди, използвайте командите /op и /deop.\nСъвет: Това работи и без отваряне за LAN!\nМожете също и да блокирате и да управлявате белия списък с играчи със съответните команди.",
   "lanServer.perWorld": "За този свят",
   "lanServer.global": "Глобални",
@@ -22,8 +32,15 @@
   "lanServer.stop": "Спиране",
   "lanServer.onlineMode": "Онлайн режим",
   "lanServer.pvpEnabled": "Играч срещу играч",
+  "lanServer.tunnel": "Тунел",
   "lanServer.maxPlayers": "Максимален брой играчи",
   "lanServer.maxPlayers.invalid": "Невалиден брой играчи.\nМоля, въведете число, по-голямо от %s.",
   "lanServer.motd": "Съобщение на деня",
-  "lanServer.motd.description": "Можете да използвате амперсанди (&&) вместо знаци за раздел, за да въведете кодове за форматиране (използвайте два амперсанда подред, за да получите действителен амперсанд).\nСледните променливи ще бъдат заместени:\n$${username} - името на собственика на сървъра (${username})\n$${world} - името на света (${world})"
+  "lanServer.motd.description": "Можете да използвате амперсанди (&&) вместо знаци за раздел, за да въведете кодове за форматиране (използвайте два амперсанда подред, за да получите действителен амперсанд).\nСледните променливи ще бъдат заместени:\n$${username} - името на собственика на сървъра (${username})\n$${world} - името на света (${world})",
+
+  "customlan.tunnel.none": "Никакъв",
+  "customlan.tunnel.ngrok": "ngrok",
+
+  "text.autoconfig.customlan.title": "Настройки за Custom LAN",
+  "text.autoconfig.customlan.option.ngrokAuthtoken": "ngrok Authtoken"
 }

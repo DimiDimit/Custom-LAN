@@ -6,17 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 import org.apache.commons.text.StringSubstitutor;
+import org.jetbrains.annotations.Nullable;
 
+import com.dimitrodam.customlan.TunnelType.TunnelException;
 import com.dimitrodam.customlan.command.argument.GameModeArgumentType;
+import com.dimitrodam.customlan.command.argument.TunnelArgumentType;
 import com.dimitrodam.customlan.mixin.IntegratedServerAccessor;
 import com.dimitrodam.customlan.mixin.PlayerManagerAccessor;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.github.alexdlaird.ngrok.NgrokClient;
 
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigHolder;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -36,15 +39,23 @@ import net.minecraft.server.dedicated.command.PardonIpCommand;
 import net.minecraft.server.dedicated.command.WhitelistCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 
 public class CustomLan implements ModInitializer {
     public static final String MODID = "customlan";
 
-    public static final Gson GSON = new GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
+    public static ConfigHolder<CustomLanConfig> CONFIG;
 
+    @Nullable
+    public static NgrokClient NGROK_CLIENT;
+
+    private static final String PUBLISH_STARTED_CUSTOMLAN_TEXT = "commands.publish.started.customlan";
+    private static final String PUBLISH_STARTED_CUSTOMLAN_TUNNEL_TEXT = "commands.publish.started.customlan.tunnel";
+    private static final String PUBLISH_PORT_CHANGE_FAILED_TEXT = "commands.publish.failed.port_change";
+    private static final String PUBLISH_SAVED_TEXT = "commands.publish.saved";
+    private static final String PUBLISH_SAVED_TUNNEL_TEXT = "commands.publish.saved.tunnel";
     private static final Text SERVER_STOPPED_TEXT = Text.translatable("multiplayer.disconnect.server_shutdown");
 
     public static String processMotd(MinecraftServer server, String rawMotd) {
@@ -57,9 +68,10 @@ public class CustomLan implements ModInitializer {
                 .replaceAll("((?:[^&]|^)(?:&&)*)&(?!&)", "$1§").replace("&&", "&");
     }
 
-    public static void startOrSaveLan(MinecraftServer server, GameMode gameMode,
-            boolean onlineMode, boolean pvpEnabled, int port, int maxPlayers, String rawMotd,
-            Consumer<String> onStarted, Consumer<String> onSaved, Runnable onFailed, IntConsumer onPortChangeFailed) {
+    public static void startOrSaveLan(MinecraftServer server, GameMode gameMode, boolean onlineMode, boolean pvpEnabled,
+            TunnelType tunnel, int port, int maxPlayers, String rawMotd, Consumer<Text> onSuccess,
+            Runnable onFatalError, Consumer<Text> onNonFatalError) {
+        CustomLanServerValues serverValues = (CustomLanServerValues) server;
         PlayerManager playerManager = server.getPlayerManager();
 
         server.setOnlineMode(onlineMode);
@@ -69,7 +81,7 @@ public class CustomLan implements ModInitializer {
 
         String oldMotd = server.getServerMotd();
         String motd = processMotd(server, rawMotd);
-        ((HasRawMotd) server).setRawMotd(rawMotd);
+        serverValues.setRawMotd(rawMotd);
         server.setMotd(motd);
         // Metadata doesn't get updated automatically.
         server.forcePlayerSampleUpdate();
@@ -86,7 +98,8 @@ public class CustomLan implements ModInitializer {
                     ((IntegratedServerAccessor) server).setLanPort(port);
                     portChanged = true;
                 } catch (IOException e) {
-                    onPortChangeFailed.accept(oldPort);
+                    onNonFatalError.accept(Text.translatable(PUBLISH_PORT_CHANGE_FAILED_TEXT,
+                            Texts.bracketedCopyable(String.valueOf(oldPort))));
                 }
             }
 
@@ -108,20 +121,73 @@ public class CustomLan implements ModInitializer {
                 playerManager.sendCommandTree(player); // Do not use server.getCommandManager().sendCommandTree(player)
                                                        // directly or things like the gamemode switcher will not update!
             }
-            onSaved.accept(motd);
+
+            TunnelType oldTunnel = serverValues.getTunnelType();
+            if (tunnel != oldTunnel || portChanged) {
+                try {
+                    oldTunnel.stop(server);
+                } catch (TunnelException e) {
+                    onNonFatalError.accept(e.getMessageText());
+                }
+
+                try {
+                    Text tunnelText = tunnel.start(server);
+                    serverValues.setTunnelType(tunnel);
+                    serverValues.setTunnelText(tunnelText);
+                    if (tunnelText != null) {
+                        onSuccess.accept(Text.translatable(PUBLISH_SAVED_TUNNEL_TEXT,
+                                Texts.bracketedCopyable(String.valueOf(server.getServerPort())), tunnelText, motd));
+                    } else {
+                        onSuccess.accept(Text.translatable(PUBLISH_SAVED_TEXT,
+                                Texts.bracketedCopyable(String.valueOf(server.getServerPort())), motd));
+                    }
+                } catch (TunnelException e) {
+                    onSuccess.accept(Text.translatable(PUBLISH_SAVED_TEXT,
+                            Texts.bracketedCopyable(String.valueOf(server.getServerPort())), motd));
+                    onNonFatalError.accept(e.getMessageText());
+                }
+            } else {
+                if (serverValues.getTunnelText() != null) {
+                    onSuccess.accept(Text.translatable(PUBLISH_SAVED_TUNNEL_TEXT,
+                            Texts.bracketedCopyable(String.valueOf(server.getServerPort())),
+                            serverValues.getTunnelText(), motd));
+                } else {
+                    onSuccess.accept(Text.translatable(PUBLISH_SAVED_TEXT,
+                            Texts.bracketedCopyable(String.valueOf(server.getServerPort())), motd));
+                }
+            }
         } else {
             if (server.openToLan(gameMode, false, port)) {
                 server.setDefaultGameMode(gameMode); // Prevents the gamemode from being forced.
-                onStarted.accept(motd);
+
+                try {
+                    Text tunnelText = tunnel.start(server);
+                    serverValues.setTunnelType(tunnel);
+                    serverValues.setTunnelText(tunnelText);
+                    if (tunnelText != null) {
+                        onSuccess.accept(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TUNNEL_TEXT,
+                                Texts.bracketedCopyable(String.valueOf(server.getServerPort())), tunnelText, motd));
+                    } else {
+                        onSuccess.accept(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
+                                Texts.bracketedCopyable(String.valueOf(server.getServerPort())), motd));
+                    }
+                } catch (TunnelException e) {
+                    onSuccess.accept(Text.translatable(PUBLISH_STARTED_CUSTOMLAN_TEXT,
+                            Texts.bracketedCopyable(String.valueOf(server.getServerPort())), motd));
+                    onNonFatalError.accept(e.getMessageText());
+                }
             } else {
-                onFailed.run();
+                onFatalError.run();
             }
             // Update the window title to have " - Multiplayer (LAN)".
             MinecraftClient.getInstance().updateWindowTitle();
         }
     }
 
-    public static void stopLan(MinecraftServer server) {
+    public static void stopLan(MinecraftServer server, Runnable onSuccess,
+            Runnable onFatalError, Consumer<Text> onNonFatalError) {
+        CustomLanServerValues serverValues = (CustomLanServerValues) server;
+
         // Disconnect the connected players.
         UUID localPlayerUuid = ((IntegratedServerAccessor) server).getLocalPlayerUuid();
         PlayerManager playerManager = server.getPlayerManager();
@@ -136,12 +202,28 @@ public class CustomLan implements ModInitializer {
         ((IntegratedServerAccessor) server).setLanPort(-1);
         ((IntegratedServerAccessor) server).getLanPinger().interrupt();
 
+        onSuccess.run();
+
+        try {
+            serverValues.getTunnelType().stop(server);
+            serverValues.setTunnelType(TunnelType.NONE);
+            serverValues.setTunnelText(null);
+        } catch (TunnelException e) {
+            onNonFatalError.accept(e.getMessageText());
+        }
+
         // Update the window title to bring back " - Singleplayer".
         MinecraftClient.getInstance().updateWindowTitle();
     }
 
     @Override
     public void onInitialize() {
+        Thread ngrokInstallThread = new Thread(() -> new NgrokClient.Builder().build());
+        ngrokInstallThread.start();
+
+        AutoConfig.register(CustomLanConfig.class, Toml4jConfigSerializer::new);
+        CONFIG = AutoConfig.getConfigHolder(CustomLanConfig.class);
+
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             if (environment.integrated) {
                 OpCommand.register(dispatcher);
@@ -157,5 +239,7 @@ public class CustomLan implements ModInitializer {
 
         ArgumentTypeRegistry.registerArgumentType(new Identifier(MODID, "game_mode"), GameModeArgumentType.class,
                 ConstantArgumentSerializer.of(GameModeArgumentType::gameMode));
+        ArgumentTypeRegistry.registerArgumentType(new Identifier(MODID, "tunnel"), TunnelArgumentType.class,
+                ConstantArgumentSerializer.of(TunnelArgumentType::tunnel));
     }
 }

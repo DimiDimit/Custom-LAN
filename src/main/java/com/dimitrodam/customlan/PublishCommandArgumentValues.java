@@ -14,6 +14,7 @@ public class PublishCommandArgumentValues {
     public Function<CommandContext<ServerCommandSource>, Boolean> getPvpEnabled;
     public Function<CommandContext<ServerCommandSource>, Integer> getMaxPlayers;
     public Function<CommandContext<ServerCommandSource>, GameMode> getGameMode;
+    public Function<CommandContext<ServerCommandSource>, TunnelType> getTunnel;
     public Function<CommandContext<ServerCommandSource>, String> getMotd;
 
     private static <T> T getValue(Function<CommandContext<ServerCommandSource>, LanSettings> getDefaultLanSettings,
@@ -21,7 +22,8 @@ public class PublishCommandArgumentValues {
         MinecraftServer server = context.getSource().getServer();
 
         LanSettings defaultLanSettings = getDefaultLanSettings.apply(context);
-        return getSetting.apply(defaultLanSettings != null ? defaultLanSettings : LanSettings.systemDefaults(server));
+        return getSetting.apply(
+                defaultLanSettings != null ? defaultLanSettings : LanSettings.systemDefaults(server));
     }
 
     public PublishCommandArgumentValues(
@@ -36,6 +38,8 @@ public class PublishCommandArgumentValues {
                 defaultLanSettings -> defaultLanSettings.maxPlayers);
         this.getGameMode = context -> getValue(getDefaultLanSettings, context,
                 defaultLanSettings -> defaultLanSettings.gameMode);
+        this.getTunnel = context -> getValue(getDefaultLanSettings, context,
+                defaultLanSettings -> defaultLanSettings.tunnel);
         this.getMotd = context -> getValue(getDefaultLanSettings, context,
                 defaultLanSettings -> defaultLanSettings.motd);
     }
@@ -46,6 +50,7 @@ public class PublishCommandArgumentValues {
         this.getPvpEnabled = other.getPvpEnabled;
         this.getMaxPlayers = other.getMaxPlayers;
         this.getGameMode = other.getGameMode;
+        this.getTunnel = other.getTunnel;
         this.getMotd = other.getMotd;
     }
 }

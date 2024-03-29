@@ -7,18 +7,19 @@ A **Fabric** mod that allows you to:
 * Save the settings globally or per-world (they are loaded automatically with per-world settings taking priority over the global ones, which take priority over the system defaults)
 * Change who can use cheats individually using the `/op` and `/deop` commands and cheat in singleplayer without opening to LAN (replaces the Allow Cheats button)
 * Manage bans with `/ban`, `/ban-ip`, `/banlist`, `/pardon` and `/pardon-ip`, and whitelist players with `/whitelist` (use `/whitelist on`/`off` to enable/disable)
+* Expose your server outside of your LAN without port forwarding using tunnels (currently only ngrok is supported)
 
 It also allows you to start the LAN world by pressing Enter, doesn't force the gamemode (e.g. anyone who left in Creative mode will still be in Creative when they join even if the world is set to Survival), and extends the `/publish` command, which can now change settings mid-game as well (use a port of `-1` to randomize it):
 ```
-/publish [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<motd>]
-/publish [perworld|global|system] [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<motd>]
+/publish [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<tunnel>] [<motd>]
+/publish [perworld|global|system] [<port>] [<onlineMode>] [<pvpEnabled>] [<maxPlayers>] [<defaultGameMode>] [<tunnel>] [<motd>]
 /publish stop
 ```
 
-It **only** requires [Fabric Loader](https://fabricmc.net/use/)—[Fabric API](https://modrinth.com/mod/fabric-api) is not required.
+It requires [Fabric Loader](https://fabricmc.net/use/) and [Cloth Config API](https://modrinth.com/mod/cloth-config), but [Fabric API](https://modrinth.com/mod/fabric-api) is not required.
 
 It has been backported to all Minecraft versions supported by Fabric (except the snapshots)!
-I'm **not** planning on porting it to **Forge** myself *for now* ([this](https://forums.minecraftforge.net/topic/70592-113how-to-use-mixin-for-forge-modding/?tab=comments#comment-341587), [this](https://forums.minecraftforge.net/topic/97430-forgemixinfabric-question/), [that](https://web.archive.org/web/20210118022002/https://gist.github.com/jellysquid3/8b68b81a5e48462f8690284a0a3c89a1) and [that](https://gist.github.com/The-Fireplace/d092f25e892a46902ecdec68dee2b938) is why), but you're more than welcome to send me a pull request.
+I'm **not** planning on porting it to **Forge** myself *for now,* but you're more than welcome to send me a pull request.
 
 ## Explanation of MOTD formatting codes and variables
 In the MOTD, ampersands (`&`) are replaced with section signs (`§`) to allow you to enter [formatting codes](https://minecraft.wiki/w/Formatting_codes) (e.g. `&9Hello, &a&lworld!` makes `Hello,` blue and `world!` green and bold).
@@ -35,7 +36,7 @@ Using the `/publish` command without specifying which saved settings to use (`pe
 Specifying the saved settings uses those particular settings or the system defaults if they haven't been saved, without checking any others, even if the world has been opened to LAN (e.g. if `perworld` is specified and no per-world settings are saved, the system defaults will be used even if there are saved global settings).
 The settings specified as arguments will override the saved settings or current values (e.g. `/publish perworld 12345 false` will use the per-world settings, except that the port will be `12345` and online mode will be disabled).
 
-The global settings are stored in `.minecraft/config/customlan.json`, while the per-world ones are stored in `data/customlan.dat` in the respective world's directory.
+The global settings are stored in `.minecraft/config/customlan.toml`, while the per-world ones are stored in `data/customlan.dat` in the respective world's directory.
 
 ## Explanation of `/op` and `/deop`
 `/op` and `/deop` work like in dedicated servers.
