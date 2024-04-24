@@ -14,7 +14,7 @@ import net.minecraft.text.Text;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin implements CustomLanServerValues {
-    private TunnelType tunnelType = null;
+    private TunnelType tunnelType = TunnelType.NONE;
     private Text tunnelText = null;
     private String rawMotd = null;
 
