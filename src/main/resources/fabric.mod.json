@@ -23,12 +23,12 @@
   "mixins": ["customlan.mixins.json"],
 
   "depends": {
-    "fabricloader": ">=0.14.22",
-    "minecraft": ["1.20.3", "1.20.4"],
-    "java": ">=17",
+    "fabricloader": ">=0.15.10",
+    "minecraft": "1.20.5",
+    "java": ">=21",
     "fabric-resource-loader-v0": "*",
     "fabric-registry-sync-v0": "*",
     "fabric-command-api-v2": "*",
-    "cloth-config": ">=13"
+    "cloth-config": ">=14"
   }
 }

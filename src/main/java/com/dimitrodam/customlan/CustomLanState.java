@@ -3,6 +3,7 @@ package com.dimitrodam.customlan;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.PersistentState;
 
 public class CustomLanState extends PersistentState {
@@ -28,14 +29,14 @@ public class CustomLanState extends PersistentState {
         this.whitelistEnabled = false;
     }
 
-    public static CustomLanState fromNbt(NbtCompound nbt) {
+    public static CustomLanState fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         NbtCompound lanSettingsNbt = nbt.getCompound(LAN_SETTINGS_KEY);
         return new CustomLanState(lanSettingsNbt.isEmpty() ? null : LanSettings.fromNbt(lanSettingsNbt),
                 nbt.getBoolean(WHITELIST_ENABLED_KEY));
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         if (lanSettings != null) {
             NbtCompound lanSettingsNbt = new NbtCompound();
             lanSettings.writeNbt(lanSettingsNbt);
