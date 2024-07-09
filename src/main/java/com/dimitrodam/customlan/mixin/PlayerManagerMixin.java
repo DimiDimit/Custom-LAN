@@ -32,7 +32,7 @@ import net.minecraft.server.ServerConfigEntry;
 import net.minecraft.server.Whitelist;
 import net.minecraft.text.Text;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.WorldSaveHandler;
+import net.minecraft.world.PlayerSaveHandler;
 
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
@@ -69,7 +69,7 @@ public class PlayerManagerMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, CombinedDynamicRegistries<ServerDynamicRegistryType> registryManager,
-            WorldSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
+            PlayerSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
         this.ops = new OperatorList(this.toWorldSpecificFile(PlayerManager.OPERATORS_FILE));
         this.bannedProfiles = new BannedPlayerList(this.toWorldSpecificFile(PlayerManager.BANNED_PLAYERS_FILE));
         this.bannedIps = new BannedIpList(this.toWorldSpecificFile(PlayerManager.BANNED_IPS_FILE));

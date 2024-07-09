@@ -237,9 +237,9 @@ public class CustomLan implements ModInitializer {
             }
         });
 
-        ArgumentTypeRegistry.registerArgumentType(new Identifier(MODID, "game_mode"), GameModeArgumentType.class,
+        ArgumentTypeRegistry.registerArgumentType(Identifier.of(MODID, "game_mode"), GameModeArgumentType.class,
                 ConstantArgumentSerializer.of(GameModeArgumentType::gameMode));
-        ArgumentTypeRegistry.registerArgumentType(new Identifier(MODID, "tunnel"), TunnelArgumentType.class,
+        ArgumentTypeRegistry.registerArgumentType(Identifier.of(MODID, "tunnel"), TunnelArgumentType.class,
                 ConstantArgumentSerializer.of(TunnelArgumentType::tunnel));
     }
 }
