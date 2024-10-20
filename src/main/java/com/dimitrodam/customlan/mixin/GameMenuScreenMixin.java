@@ -11,11 +11,14 @@ import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.GridWidget;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 
 @Mixin(GameMenuScreen.class)
 public class GameMenuScreenMixin extends Screen {
+    private static final Text PLAYER_REPORTING_TEXT = Text.translatable("menu.playerReporting");
+
     private static final Text EDIT_LAN_TEXT = Text.translatable("menu.editLan");
 
     protected GameMenuScreenMixin(Text title) {
@@ -28,10 +31,17 @@ public class GameMenuScreenMixin extends Screen {
 
         boolean isHost = this.client.isIntegratedServerRunning();
         if (isHost && server.isRemote()) { // Already opened to LAN
-            ButtonWidget playerReportingButton = (ButtonWidget) ((GridWidgetAccessor) gridWidget).getChildren().get(6);
-            playerReportingButton.setMessage(EDIT_LAN_TEXT);
-            ((ButtonWidgetAccessor) playerReportingButton)
-                    .setOnPress(button -> this.client.setScreen(new OpenToLanScreen(this)));
+            for (Widget widget : ((GridWidgetAccessor) gridWidget).getChildren()) {
+                if (!(widget instanceof ButtonWidget)) {
+                    continue;
+                }
+                ButtonWidget button = (ButtonWidget) widget;
+                if (PLAYER_REPORTING_TEXT.equals(button.getMessage())) {
+                    button.setMessage(EDIT_LAN_TEXT);
+                    ((ButtonWidgetAccessor) button)
+                            .setOnPress(btn -> this.client.setScreen(new OpenToLanScreen(this)));
+                }
+            }
         }
     }
 }
