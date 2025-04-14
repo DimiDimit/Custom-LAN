@@ -157,8 +157,7 @@ public class PlayerManagerMixin {
     }
 
     private CustomLanState getCustomLanState() {
-        return this.server.getOverworld().getPersistentStateManager()
-                .getOrCreate(CustomLanState.getPersistentStateType(), CustomLanState.CUSTOM_LAN_KEY);
+        return this.server.getOverworld().getPersistentStateManager().getOrCreate(CustomLanState.STATE_TYPE);
     }
 
     @Inject(method = "isWhitelistEnabled", at = @At("HEAD"), cancellable = true)

@@ -2,22 +2,28 @@ package com.dimitrodam.customlan;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 
 public class CustomLanState extends PersistentState {
-    public static final String CUSTOM_LAN_KEY = CustomLan.MODID;
     private static final String LAN_SETTINGS_KEY = "lanSettings";
     private static final String WHITELIST_ENABLED_KEY = "whitelistEnabled";
+
+    public static final String CUSTOM_LAN_KEY = CustomLan.MODID;
+    public static final Codec<CustomLanState> CODEC = RecordCodecBuilder.create(instance -> instance
+            .group(LanSettings.CODEC.optionalFieldOf(LAN_SETTINGS_KEY, null).forGetter(state -> state.lanSettings),
+                    Codec.BOOL.optionalFieldOf(WHITELIST_ENABLED_KEY, false)
+                            .forGetter(state -> state.whitelistEnabled))
+            .apply(instance, CustomLanState::new));
+    public static final PersistentStateType<CustomLanState> STATE_TYPE = new PersistentStateType<>(CUSTOM_LAN_KEY,
+            CustomLanState::new, CODEC, null);
 
     @Nullable
     private LanSettings lanSettings;
     private boolean whitelistEnabled;
-
-    public static PersistentState.Type<CustomLanState> getPersistentStateType() {
-        return new PersistentState.Type<CustomLanState>(CustomLanState::new, CustomLanState::fromNbt, null);
-    }
 
     private CustomLanState(@Nullable LanSettings lanSettings, boolean whitelistEnabled) {
         this.lanSettings = lanSettings;
@@ -27,23 +33,6 @@ public class CustomLanState extends PersistentState {
     public CustomLanState() {
         this.lanSettings = null;
         this.whitelistEnabled = false;
-    }
-
-    public static CustomLanState fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        NbtCompound lanSettingsNbt = nbt.getCompound(LAN_SETTINGS_KEY);
-        return new CustomLanState(lanSettingsNbt.isEmpty() ? null : LanSettings.fromNbt(lanSettingsNbt),
-                nbt.getBoolean(WHITELIST_ENABLED_KEY));
-    }
-
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        if (lanSettings != null) {
-            NbtCompound lanSettingsNbt = new NbtCompound();
-            lanSettings.writeNbt(lanSettingsNbt);
-            nbt.put(LAN_SETTINGS_KEY, lanSettingsNbt);
-        }
-        nbt.putBoolean(WHITELIST_ENABLED_KEY, this.whitelistEnabled);
-        return nbt;
     }
 
     @Nullable

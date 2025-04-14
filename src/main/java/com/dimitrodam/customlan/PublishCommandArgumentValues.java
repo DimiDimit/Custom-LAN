@@ -2,23 +2,26 @@ package com.dimitrodam.customlan;
 
 import java.util.function.Function;
 
+import com.dimitrodam.customlan.util.ArgumentValueFunction;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.world.GameMode;
 
 public class PublishCommandArgumentValues {
-    public Function<CommandContext<ServerCommandSource>, Integer> getPort;
-    public Function<CommandContext<ServerCommandSource>, Boolean> getOnlineMode;
-    public Function<CommandContext<ServerCommandSource>, Boolean> getPvpEnabled;
-    public Function<CommandContext<ServerCommandSource>, Integer> getMaxPlayers;
-    public Function<CommandContext<ServerCommandSource>, GameMode> getGameMode;
-    public Function<CommandContext<ServerCommandSource>, TunnelType> getTunnel;
-    public Function<CommandContext<ServerCommandSource>, String> getMotd;
+    public ArgumentValueFunction<Integer> getPort;
+    public ArgumentValueFunction<Boolean> getOnlineMode;
+    public ArgumentValueFunction<Boolean> getPvpEnabled;
+    public ArgumentValueFunction<Integer> getMaxPlayers;
+    public ArgumentValueFunction<GameMode> getGameMode;
+    public ArgumentValueFunction<TunnelType> getTunnel;
+    public ArgumentValueFunction<String> getMotd;
 
-    private static <T> T getValue(Function<CommandContext<ServerCommandSource>, LanSettings> getDefaultLanSettings,
-            CommandContext<ServerCommandSource> context, Function<LanSettings, T> getSetting) {
+    private static <T> T getValue(ArgumentValueFunction<LanSettings> getDefaultLanSettings,
+            CommandContext<ServerCommandSource> context, Function<LanSettings, T> getSetting)
+            throws CommandSyntaxException {
         MinecraftServer server = context.getSource().getServer();
 
         LanSettings defaultLanSettings = getDefaultLanSettings.apply(context);
@@ -27,7 +30,7 @@ public class PublishCommandArgumentValues {
     }
 
     public PublishCommandArgumentValues(
-            Function<CommandContext<ServerCommandSource>, LanSettings> getDefaultLanSettings) {
+            ArgumentValueFunction<LanSettings> getDefaultLanSettings) {
         this.getPort = context -> getValue(getDefaultLanSettings, context,
                 defaultLanSettings -> defaultLanSettings.port);
         this.getOnlineMode = context -> getValue(getDefaultLanSettings, context,

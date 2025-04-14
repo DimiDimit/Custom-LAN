@@ -1,5 +1,7 @@
 package com.dimitrodam.customlan;
 
+import java.net.URI;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.dimitrodam.customlan.util.Utils;
@@ -23,7 +25,8 @@ public enum TunnelType implements StringIdentifiable {
             String authtoken = CustomLan.CONFIG.getConfig().ngrokAuthtoken.strip();
             if (authtoken.isEmpty()) {
                 throw new TunnelException(ScreenTexts.composeGenericOptionText(NGROK_FAILED,
-                        Text.translatable(NGROK_FAILED_NO_AUTHTOKEN, Utils.createLink(NGROK_AUTHTOKEN_URL))));
+                        Text.translatable(NGROK_FAILED_NO_AUTHTOKEN,
+                                Utils.createLink(URI.create(NGROK_AUTHTOKEN_URL)))));
             }
 
             try {
@@ -78,7 +81,6 @@ public enum TunnelType implements StringIdentifiable {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static final StringIdentifiable.EnumCodec<TunnelType> CODEC = StringIdentifiable
             .createCodec(TunnelType::values);
 
@@ -96,7 +98,6 @@ public enum TunnelType implements StringIdentifiable {
 
     @Nullable
     public static TunnelType byName(String name, @Nullable TunnelType defaultTunnelType) {
-        @SuppressWarnings("deprecation")
         TunnelType tunnelType = CODEC.byId(name);
         return tunnelType != null ? tunnelType : defaultTunnelType;
     }

@@ -11,7 +11,6 @@ import org.apache.commons.text.StringSubstitutor;
 import org.jetbrains.annotations.Nullable;
 
 import com.dimitrodam.customlan.TunnelType.TunnelException;
-import com.dimitrodam.customlan.command.argument.GameModeArgumentType;
 import com.dimitrodam.customlan.command.argument.TunnelArgumentType;
 import com.dimitrodam.customlan.mixin.IntegratedServerAccessor;
 import com.dimitrodam.customlan.mixin.PlayerManagerAccessor;
@@ -237,8 +236,6 @@ public class CustomLan implements ModInitializer {
             }
         });
 
-        ArgumentTypeRegistry.registerArgumentType(Identifier.of(MODID, "game_mode"), GameModeArgumentType.class,
-                ConstantArgumentSerializer.of(GameModeArgumentType::gameMode));
         ArgumentTypeRegistry.registerArgumentType(Identifier.of(MODID, "tunnel"), TunnelArgumentType.class,
                 ConstantArgumentSerializer.of(TunnelArgumentType::tunnel));
     }

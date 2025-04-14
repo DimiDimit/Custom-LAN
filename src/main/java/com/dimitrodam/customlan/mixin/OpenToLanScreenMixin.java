@@ -29,11 +29,11 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.NetworkUtils;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.NetworkUtils;
 import net.minecraft.world.GameMode;
 
 @Mixin(OpenToLanScreen.class)
@@ -158,7 +158,7 @@ public abstract class OpenToLanScreenMixin extends Screen {
         // this.client wouldn't have been initialized yet.
         if (!this.initialized) {
             this.customLanState = server.getOverworld().getPersistentStateManager()
-                    .getOrCreate(CustomLanState.getPersistentStateType(), CustomLanState.CUSTOM_LAN_KEY);
+                    .getOrCreate(CustomLanState.STATE_TYPE);
 
             if (server.isRemote()) {
                 CustomLanServerValues serverValues = (CustomLanServerValues) server;

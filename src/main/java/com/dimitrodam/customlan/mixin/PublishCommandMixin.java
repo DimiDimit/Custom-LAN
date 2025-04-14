@@ -1,7 +1,5 @@
 package com.dimitrodam.customlan.mixin;
 
-import static com.dimitrodam.customlan.command.argument.GameModeArgumentType.gameMode;
-import static com.dimitrodam.customlan.command.argument.GameModeArgumentType.getGameMode;
 import static com.dimitrodam.customlan.command.argument.TunnelArgumentType.getTunnel;
 import static com.dimitrodam.customlan.command.argument.TunnelArgumentType.tunnel;
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
@@ -10,6 +8,8 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
+import static net.minecraft.command.argument.GameModeArgumentType.gameMode;
+import static net.minecraft.command.argument.GameModeArgumentType.getGameMode;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -40,11 +40,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.util.NetworkUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.PublishCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.NetworkUtils;
 import net.minecraft.world.GameMode;
 
 @Mixin(PublishCommand.class)
@@ -109,8 +109,7 @@ public class PublishCommandMixin {
                                         }
                                         CustomLanState customLanState = server.getOverworld()
                                                         .getPersistentStateManager()
-                                                        .getOrCreate(CustomLanState.getPersistentStateType(),
-                                                                        CustomLanState.CUSTOM_LAN_KEY);
+                                                        .getOrCreate(CustomLanState.STATE_TYPE);
                                         if (customLanState.getLanSettings() != null) {
                                                 return customLanState.getLanSettings();
                                         } else if (CustomLan.CONFIG.getConfig().lanSettings != null) {
@@ -123,9 +122,7 @@ public class PublishCommandMixin {
                                                                 context -> context.getSource().getServer()
                                                                                 .getOverworld()
                                                                                 .getPersistentStateManager()
-                                                                                .getOrCreate(CustomLanState
-                                                                                                .getPersistentStateType(),
-                                                                                                CustomLanState.CUSTOM_LAN_KEY)
+                                                                                .getOrCreate(CustomLanState.STATE_TYPE)
                                                                                 .getLanSettings()),
                                                 executeCommand, arguments.iterator()))
                                 .then(processThisAndArguments(literal("global"),
