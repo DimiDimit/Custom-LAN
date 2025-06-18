@@ -2,9 +2,11 @@ package com.dimitrodam.customlan.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
+import com.mojang.brigadier.CommandDispatcher;
+
+import net.minecraft.command.PermissionLevelPredicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.dedicated.command.BanCommand;
@@ -26,13 +28,27 @@ public class GenericCommandMixin {
      * {@code /pardon}, {@code /pardon-ip} and {@code /whitelist} commands.
      */
     // The regex is a workaround for
+    // https://github.com/SpongePowered/Mixin/issues/603 and
     // https://github.com/SpongePowered/Mixin/issues/467.
-    @Inject(method = "desc=/^\\(L(?:net\\/minecraft\\/server\\/command\\/ServerCommandSource|net\\/minecraft\\/class_2168);\\)Z$/", at = @At("HEAD"), cancellable = true)
-    private static void checkPermissions(ServerCommandSource source, CallbackInfoReturnable<Boolean> ci) {
-        Entity entity = source.getEntity();
-        if (entity instanceof ServerPlayerEntity
-                && source.getServer().isHost(((ServerPlayerEntity) entity).getGameProfile())) {
-            ci.setReturnValue(true);
-        }
+    @Redirect(method = "desc=/^\\(Lcom/mojang/brigadier/CommandDispatcher;\\)V$/", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/CommandManager;requirePermissionLevel(I)Lnet/minecraft/command/PermissionLevelPredicate;"))
+    private static PermissionLevelPredicate<ServerCommandSource> checkPermissions(int requiredLevel,
+            CommandDispatcher<ServerCommandSource> dispatcher) {
+        return new PermissionLevelPredicate<ServerCommandSource>() {
+            @Override
+            public int requiredLevel() {
+                return requiredLevel;
+            }
+
+            @Override
+            public boolean test(ServerCommandSource source) {
+                Entity entity = source.getEntity();
+                if (entity instanceof ServerPlayerEntity
+                        && source.getServer().isHost(((ServerPlayerEntity) entity).getGameProfile())) {
+                    return true;
+                }
+
+                return source.hasPermissionLevel(requiredLevel);
+            }
+        };
     }
 }

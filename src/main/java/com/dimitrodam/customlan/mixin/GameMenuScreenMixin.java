@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.GridWidget;
-import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 
@@ -31,9 +30,9 @@ public class GameMenuScreenMixin extends Screen {
 
         boolean isHost = this.client.isIntegratedServerRunning();
         if (isHost && server.isRemote()) { // Already opened to LAN
-            for (Widget widget : ((GridWidgetAccessor) gridWidget).getChildren()) {
+            gridWidget.forEachElement(widget -> {
                 if (!(widget instanceof ButtonWidget)) {
-                    continue;
+                    return;
                 }
                 ButtonWidget button = (ButtonWidget) widget;
                 if (PLAYER_REPORTING_TEXT.equals(button.getMessage())) {
@@ -41,7 +40,7 @@ public class GameMenuScreenMixin extends Screen {
                     ((ButtonWidgetAccessor) button)
                             .setOnPress(btn -> this.client.setScreen(new OpenToLanScreen(this)));
                 }
-            }
+            });
         }
     }
 }

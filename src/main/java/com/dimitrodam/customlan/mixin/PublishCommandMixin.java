@@ -40,9 +40,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.PublishCommand;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.NetworkUtils;
 import net.minecraft.world.GameMode;
@@ -95,7 +97,15 @@ public class PublishCommandMixin {
                                 argumentValues.getGameMode.apply(context), argumentValues.getMotd.apply(context));
 
                 LiteralArgumentBuilder<ServerCommandSource> command = processThisAndArguments(literal("publish")
-                                .requires(source -> source.hasPermissionLevel(4)),
+                                .requires(source -> {
+                                        Entity entity = source.getEntity();
+                                        if (entity instanceof ServerPlayerEntity && source.getServer()
+                                                        .isHost(((ServerPlayerEntity) entity).getGameProfile())) {
+                                                return true;
+                                        }
+
+                                        return source.hasPermissionLevel(4);
+                                }),
                                 new PublishCommandArgumentValues(context -> {
                                         MinecraftServer server = context.getSource().getServer();
                                         if (server.isRemote()) {

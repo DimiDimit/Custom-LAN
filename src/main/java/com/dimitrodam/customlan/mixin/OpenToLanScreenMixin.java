@@ -32,6 +32,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.NetworkUtils;
 import net.minecraft.world.GameMode;
@@ -327,22 +328,24 @@ public abstract class OpenToLanScreenMixin extends Screen {
     @Inject(method = "render", at = @At("TAIL"))
     private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         // Per-world settings text
-        context.drawTextWithShadow(this.textRenderer, PER_WORLD_TEXT, this.width / 2 - 155, 14, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, PER_WORLD_TEXT, this.width / 2 - 155, 14, Colors.WHITE);
         // Global settings text
-        context.drawTextWithShadow(this.textRenderer, GLOBAL_TEXT, this.width / 2 - 155, 38, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, GLOBAL_TEXT, this.width / 2 - 155, 38, Colors.WHITE);
         // System settings text
-        context.drawTextWithShadow(this.textRenderer, SYSTEM_TEXT, this.width / 2 - 155, 62, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, SYSTEM_TEXT, this.width / 2 - 155, 62, Colors.WHITE);
 
         // Explanation text
-        this.explanationText.drawWithShadow(context, this.width / 2 - 154, 172, 9, 0xA0A0A0);
+        this.explanationText.drawWithShadow(context, this.width / 2 - 154, 172, 9, Colors.LIGHT_GRAY);
 
         // Port field text
-        context.drawTextWithShadow(this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104, 0xA0A0A0);
+        context.drawTextWithShadow(this.textRenderer, PORT_TEXT, this.width / 2 - 154, this.height - 104,
+                Colors.LIGHT_GRAY);
         // Max Players field text
         context.drawTextWithShadow(this.textRenderer, MAX_PLAYERS_TEXT, this.width / 2 + 6, this.height - 104,
-                0xA0A0A0);
+                Colors.LIGHT_GRAY);
         // MOTD field text
-        context.drawTextWithShadow(this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66, 0xA0A0A0);
+        context.drawTextWithShadow(this.textRenderer, MOTD_TEXT, this.width / 2 - 154, this.height - 66,
+                Colors.LIGHT_GRAY);
     }
 
     @Redirect(method = "updatePort", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/NetworkUtils;isPortAvailable(I)Z"))
